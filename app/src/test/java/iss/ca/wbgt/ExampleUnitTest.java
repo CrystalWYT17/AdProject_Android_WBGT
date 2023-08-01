@@ -1,4 +1,4 @@
-package iss.workshop.wbgt;
+package iss.ca.wbgt;
 
 import org.junit.Test;
 

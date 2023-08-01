@@ -1,4 +1,4 @@
-package iss.workshop.wbgt;
+package iss.ca.wbgt;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("iss.workshop.wbgt", appContext.getPackageName());
+        assertEquals("iss.ca.wbgt", appContext.getPackageName());
     }
 }

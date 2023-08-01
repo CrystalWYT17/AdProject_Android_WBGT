@@ -7,16 +7,16 @@ def localProperties = new Properties()
 localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
-    namespace 'iss.workshop.wbgt'
+    namespace 'iss.ca.wbgt'
     compileSdk 33
 
     defaultConfig {
-        applicationId "iss.workshop.wbgt"
+        applicationId "iss.ca.wbgt"
         minSdk 29
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -24,10 +24,14 @@ android {
         debug {
             buildConfigField("String", "google_maps_key", localProperties['MAPS_API_KEY'])
         }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -37,12 +41,17 @@ android {
 
 dependencies {
 
-    implementation 'com.google.android.libraries.places:places:3.1.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.android.gms:play-services-maps:18.1.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    //chart
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    //map
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+
+    implementation 'com.google.android.libraries.places:places:3.2.0'
+
 }

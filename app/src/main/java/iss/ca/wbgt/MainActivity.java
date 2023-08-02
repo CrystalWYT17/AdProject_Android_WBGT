@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 transaction.setCustomAnimations(
                         R.anim.enter_left_to_right, R.anim.exit_left_to_right,
                         R.anim.enter_right_to_left, R.anim.exit_right_to_left
-                ).replace(R.id.fragment_container, mainFragment).addToBackStack(null).commit();
+                ).replace(R.id.fragment_container, mainFragment).commit();
             }
         });
 
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             transaction.setCustomAnimations(
                     R.anim.enter_left_to_right, R.anim.exit_left_to_right,
                     R.anim.enter_right_to_left, R.anim.exit_right_to_left
-            ).replace(R.id.fragment_container, mainFragment).addToBackStack(null).commit();
+            ).replace(R.id.fragment_container, mainFragment).commit();
         } else {
             Fragment mainFragment = new MainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

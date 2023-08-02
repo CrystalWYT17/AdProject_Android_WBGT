@@ -7,13 +7,18 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link NotificationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class NotificationFragment extends Fragment {
+public class NotificationFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,6 +28,9 @@ public class NotificationFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    //Notification Data
+    private ArrayList<Notification> notifications;
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -59,6 +67,25 @@ public class NotificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notification, container, false);
+        View rootView =  inflater.inflate(R.layout.fragment_notification, container, false);
+        getNotificationList();
+        ListViewAdapter adapter = new ListViewAdapter(getContext(), notifications);
+        ListView listView = rootView.findViewById(R.id.notification_list);
+        if(listView!=null){
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(this);
+        }
+
+        return rootView;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Toast.makeText(getContext(), "some"+position, Toast.LENGTH_SHORT).show();
+    }
+
+    private void getNotificationList(){
+        notifications = new ArrayList<Notification>();
+        notifications.add(new Notification("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
     }
 }

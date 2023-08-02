@@ -67,16 +67,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Drawable originalDrawable = AppCompatResources.getDrawable(MainActivity.this, R.drawable.notification);
 
         ImageView notificationBell = findViewById(R.id.notification_badge);
+        //switch to notification fragment
         notificationBell.setOnClickListener(v->{
             isClickedNotification = !isClickedNotification;
             if(isClickedNotification){
                 Drawable tintedDrawable = originalDrawable.getConstantState().newDrawable().mutate();
                 DrawableCompat.setTint(tintedDrawable, Color.GREEN);
                 notificationBell.setImageDrawable(tintedDrawable);
+                //switch to notification fragment
+                Fragment notificationFragment = new NotificationFragment();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(
+                        R.anim.enter_right_to_left, R.anim.exit_right_to_left, R.anim.enter_left_to_right, R.anim.exit_left_to_right
+                ).replace(R.id.fragment_container, notificationFragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
             }else{
                 notificationBell.setImageDrawable(originalDrawable);
+                Fragment mainFragment = new MainFragment();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(
+                        R.anim.enter_left_to_right, R.anim.exit_left_to_right,
+                        R.anim.enter_right_to_left, R.anim.exit_right_to_left
+                ).replace(R.id.fragment_container, mainFragment).addToBackStack(null).commit();
             }
         });
+
 
 
         Places.initialize(getApplicationContext(), apiKey);
@@ -151,7 +165,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.closeDrawer(GravityCompat.START);
         } else if (currentFragment instanceof MainFragment) {
             super.onBackPressed();
-        }else {
+        } else if (currentFragment instanceof NotificationFragment) {
+            Fragment mainFragment = new MainFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(
+                    R.anim.enter_left_to_right, R.anim.exit_left_to_right,
+                    R.anim.enter_right_to_left, R.anim.exit_right_to_left
+            ).replace(R.id.fragment_container, mainFragment).addToBackStack(null).commit();
+        } else {
             Fragment mainFragment = new MainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, mainFragment);

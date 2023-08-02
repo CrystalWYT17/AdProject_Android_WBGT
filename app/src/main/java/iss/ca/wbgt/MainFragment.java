@@ -4,6 +4,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,10 +31,21 @@ public class MainFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
+    //for line chart
     private LineChart lineChart;
-    private LineData lineData;
-    private LineDataSet lineDataSet;
     private ArrayList<Entry> lineEntries = new ArrayList<>();
+    MyLineChart myLineChart;
+
+    //for recyclerview
+    private RecyclerView recyclerView;
+    private List<ForecastDay> forecastDayList = new ArrayList<ForecastDay>();
+    private RecyclerView.LayoutManager layoutManager;
+    private RecyclerAdapter recyclerAdapter;
+    private LinearLayoutManager horizontalLayout;
+    private View childView;
+    private int recyclerViewItemPosition;
+    ;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -70,6 +84,7 @@ public class MainFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,30 +92,24 @@ public class MainFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         getEntries();
-        lineDataSet = new LineDataSet(lineEntries, "WBGT");
-        lineData = new LineData(lineDataSet);
-        lineDataSet.setColor(Color.GREEN);
-        lineDataSet.setLineWidth(2f);
-        lineDataSet.setDrawValues(false);
-        lineDataSet.setValueTextColor(Color.BLACK);
-        lineDataSet.setValueTextSize(12f);
+        myLineChart = new MyLineChart(lineChart, lineEntries);
+        myLineChart.drawLineChart();
 
-        //customize Axis
-        XAxis xAxis = lineChart.getXAxis();
-        YAxis yAxis = lineChart.getAxisLeft();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-        yAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
-        yAxis.setDrawGridLines(false);
-        //lineChart.getAxisRight().setDrawGridLines(false);
-        lineChart.getAxisRight().setEnabled(false);
-        xAxis.setGranularity(1f);
 
-        //lineChart.setDrawGridBackground(false);
-        lineChart.getDescription().setEnabled(false);
-        lineChart.setData(lineData);
-        lineChart.invalidate();
-        lineChart.animateX(1000);
+
+        //recyclerView
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.xDaysForecast);
+        layoutManager = new LinearLayoutManager(requireContext());
+        recyclerView.setLayoutManager(layoutManager);
+        getDataForXDaysForecast();
+        recyclerAdapter = new RecyclerAdapter(forecastDayList);
+        horizontalLayout = new LinearLayoutManager(
+                getActivity(),
+                LinearLayoutManager.HORIZONTAL,
+                false);
+        recyclerView.setLayoutManager(horizontalLayout);
+        recyclerView.setAdapter(recyclerAdapter);
+
         return rootView;
     }
 
@@ -129,5 +138,15 @@ public class MainFragment extends Fragment {
         lineEntries.add(new Entry(21f, 8f));
         lineEntries.add(new Entry(22f, 6f));
         lineEntries.add(new Entry(23f, 4f));
+    }
+
+    private void getDataForXDaysForecast(){
+        forecastDayList.add(new ForecastDay("Today", "35", "25"));
+        forecastDayList.add(new ForecastDay("Mon", "35", "25"));
+        forecastDayList.add(new ForecastDay("Tue", "35", "25"));
+        forecastDayList.add(new ForecastDay("Wed", "35", "25"));
+        forecastDayList.add(new ForecastDay("Thu", "35", "25"));
+        forecastDayList.add(new ForecastDay("Fri", "35", "25"));
+        forecastDayList.add(new ForecastDay("Sat", "35", "25"));
     }
 }

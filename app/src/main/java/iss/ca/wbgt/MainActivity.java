@@ -4,15 +4,24 @@ package iss.ca.wbgt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -34,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
+    private boolean isClickedNotification = false;
+
     private int LOCATION_PERMISSION_REQCODE = 1111;
 //    private int BACKGROUND_PERMISSION_REQCODE = 2222;
 
@@ -51,6 +62,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //notification icon
+
+        Drawable originalDrawable = AppCompatResources.getDrawable(MainActivity.this, R.drawable.notification);
+
+        ImageView notificationBell = findViewById(R.id.notification_badge);
+        notificationBell.setOnClickListener(v->{
+            isClickedNotification = !isClickedNotification;
+            if(isClickedNotification){
+                Drawable tintedDrawable = originalDrawable.getConstantState().newDrawable().mutate();
+                DrawableCompat.setTint(tintedDrawable, Color.GREEN);
+                notificationBell.setImageDrawable(tintedDrawable);
+            }else{
+                notificationBell.setImageDrawable(originalDrawable);
+            }
+        });
+
 
         Places.initialize(getApplicationContext(), apiKey);
         placesClient = com.google.android.libraries.places.api.Places.createClient(this);
@@ -66,8 +93,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MainFragment()).commit();
-
+        //getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MainFragment()).commit();
+        Fragment mainFragment = new MainFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, mainFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
 
 
     }
@@ -78,10 +109,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
     }
 
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         if(item.getItemId() == R.id.nav_station){
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new StationFragment()).commit();
+            Fragment fragment = new StationFragment();
+            transaction.replace(R.id.fragment_container, fragment);
+        //    transaction.addToBackStack(null);
+            transaction.commit();
+        } else if (item.getItemId() == R.id.home) {
+            Fragment fragment = new MainFragment();
+            transaction.replace(R.id.fragment_container, fragment);
+            transaction.addToBackStack("mainFragment");
+            transaction.commit();
+        } else if (item.getItemId() == R.id.nav_about) {
+            Fragment fragment = new AboutFragment();
+            transaction.replace(R.id.fragment_container, fragment);
+           // transaction.addToBackStack(null);
+            transaction.commit();
+        } else if (item.getItemId()==R.id.nav_faq) {
+            Fragment fragment = new FaqFragment();
+            transaction.replace(R.id.fragment_container, fragment);
+            //transaction.addToBackStack(null);
+            transaction.commit();
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -95,11 +146,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
+        } else if (currentFragment instanceof MainFragment) {
             super.onBackPressed();
+        }else {
+            Fragment mainFragment = new MainFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, mainFragment);
+            transaction.commit();
         }
+
     }
 
     //permission

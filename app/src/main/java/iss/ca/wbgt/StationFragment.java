@@ -11,16 +11,19 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,6 +34,9 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     private String[] stations = {"Station One", "Station Two", "Station Three"};
     private MapView mMapView;
+    //linechart
+    private LineChart lineChart;
+    private ArrayList<Entry> lineEntries = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -79,7 +85,10 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_station, container, false);
         Spinner spinner = (Spinner) rootView.findViewById(R.id.dropdown);
-
+        lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
+        getEntries();
+        MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+        newLineChart.drawLineChart();
 
         ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, stations);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -97,7 +106,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(getContext(), stations[position], Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), stations[position], Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -142,5 +151,32 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         int zoomLevel = 12;
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(markerLocation, zoomLevel));
         map.getUiSettings().setZoomControlsEnabled(true);
+    }
+
+    private void getEntries(){
+        lineEntries.add(new Entry(0f, 5f));
+        lineEntries.add(new Entry(1f, 8f));
+        lineEntries.add(new Entry(2f, 6f));
+        lineEntries.add(new Entry(3f, 8f));
+        lineEntries.add(new Entry(4f, 6f));
+        lineEntries.add(new Entry(5f, 4f));
+        lineEntries.add(new Entry(6f, 5f));
+        lineEntries.add(new Entry(7f, 4f));
+        lineEntries.add(new Entry(8f, 6f));
+        lineEntries.add(new Entry(9f, 7f));
+        lineEntries.add(new Entry(10f, 10f));
+        lineEntries.add(new Entry(11f, 12f));
+        lineEntries.add(new Entry(12f, 10f));
+        lineEntries.add(new Entry(13f, 4f));
+        lineEntries.add(new Entry(14f, 10f));
+        lineEntries.add(new Entry(15f, 8f));
+        lineEntries.add(new Entry(16f, 5f));
+        lineEntries.add(new Entry(17f, 4f));
+        lineEntries.add(new Entry(18f, 3f));
+        lineEntries.add(new Entry(19f, 4f));
+        lineEntries.add(new Entry(20f, 6f));
+        lineEntries.add(new Entry(21f, 8f));
+        lineEntries.add(new Entry(22f, 6f));
+        lineEntries.add(new Entry(23f, 4f));
     }
 }

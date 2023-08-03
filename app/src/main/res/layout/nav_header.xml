@@ -6,7 +6,8 @@
     android:layout_height="140dp"
     android:gravity="center"
     android:padding="16dp"
-    android:background="@color/teal_200"
+    android:background="@color/light_green"
+    style="@style/SCREEN"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
 
@@ -14,6 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="WBGT"
+        style="@style/TEXT"
         android:textSize="34dp"
         android:textColor="@color/white"
         android:textStyle="bold"/>

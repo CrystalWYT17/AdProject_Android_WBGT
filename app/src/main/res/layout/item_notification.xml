@@ -9,6 +9,7 @@
     <TextView
         android:id="@+id/title"
         tools:text="Title"
+        style="@style/TEXT"
         android:textSize="30sp"
         android:textAlignment="textStart"
         android:layout_width="wrap_content"
@@ -20,6 +21,7 @@
     <TextView
         android:id="@+id/message_body"
         android:layout_width="0dp"
+        style="@style/TEXT"
         tools:text="Set some warning message together with current wbgt value and location"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
@@ -39,6 +41,7 @@
     <TextView
         android:id="@+id/timeTxt"
         tools:text="Jul 2023 16:47"
+        style="@style/TEXT"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="5dp"
         android:layout_width="wrap_content"

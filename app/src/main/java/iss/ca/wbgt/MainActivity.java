@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -90,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ).replace(R.id.fragment_container, mainFragment).commit();
             }
         });
-
 
 
         Places.initialize(getApplicationContext(), apiKey);

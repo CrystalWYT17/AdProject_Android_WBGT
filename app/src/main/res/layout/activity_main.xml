@@ -20,7 +20,6 @@
             android:layout_height="56dp"
             android:id="@+id/toolbar"
             android:elevation="4dp"
-            android:background="@color/white"
             android:popupTheme="@style/ThemeOverlay.AppCompat.Light">
             <ImageView
                 android:id="@+id/notification_badge"

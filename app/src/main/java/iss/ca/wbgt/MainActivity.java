@@ -35,6 +35,15 @@ import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,6 +54,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
     private boolean isClickedNotification = false;
+
+    //To Store Notification
+    File mTargetFile;
+    private ArrayList<Notification> notifications = new ArrayList<Notification>();
+    private ArrayList<Notification> notificationsTest = new ArrayList<Notification>();
 
     private int LOCATION_PERMISSION_REQCODE = 1111;
 //    private int BACKGROUND_PERMISSION_REQCODE = 2222;
@@ -91,6 +105,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ).replace(R.id.fragment_container, mainFragment).commit();
             }
         });
+
+        //store notifications to file
+        String folder = "NotificationsTest";
+        String fileName = "notification_list";
+        mTargetFile = new File(getFilesDir(), folder+"/"+fileName);
+        writeToFile();
+        readFromFile();
+        System.out.println("NotiTest"+notificationsTest);
+
 
 
         Places.initialize(getApplicationContext(), apiKey);
@@ -209,5 +232,71 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else{
             ActivityCompat.requestPermissions(this,locationPermission,LOCATION_PERMISSION_REQCODE);
         }
+    }
+
+    protected void writeToFile(){
+        ArrayList<String> notificationString = getNotificationString();
+        try {
+            File parent = mTargetFile.getParentFile();
+            if(!parent.exists() && !parent.mkdirs()){
+                throw new IllegalStateException("Could not create dir: "+ parent);
+            }
+            FileOutputStream fos = new FileOutputStream(mTargetFile);
+            for (String notification: notificationString){
+                fos.write((notification+"\n").getBytes());
+            }
+            fos.close();
+            Toast.makeText(getApplicationContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    protected void readFromFile(){
+        try{
+            FileInputStream fis = new FileInputStream(mTargetFile);
+            DataInputStream dis = new DataInputStream(fis);
+            BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+            String strLine;
+            //Assign the lines from buffer reader to strline and check if it is null
+            while ((strLine = br.readLine())!= null){
+                notificationsTest.add(convertStringToNotification(strLine));
+            }
+            dis.close();
+            //mInputTxt.setText(data);
+            Toast.makeText(this, "Read File OK!", Toast.LENGTH_SHORT).show();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    protected ArrayList<String> getNotificationString(){
+        //initialize some notification data for testing purpose
+        notifications.add(new Notification("Title1", "Body1", "Time1"));
+        notifications.add(new Notification("Title2", "Body2", "Time2"));
+        notifications.add(new Notification("Title3", "Body3", "Time3"));
+        notifications.add(new Notification("Title4", "Body4", "Time4"));
+        notifications.add(new Notification("Title5", "Body5", "Time5"));
+        notifications.add(new Notification("Title6", "Body6", "Time6"));
+        notifications.add(new Notification("Title7", "Body7", "Time7"));
+        notifications.add(new Notification("Title8", "Body8", "Time8"));
+
+        ArrayList<String> notificationStrings = new ArrayList<String>();
+
+        for(Notification notification: notifications){
+            String notiString = notification.getTitle()+"|"+notification.getMessage()+"|"+notification.getTime();
+            notificationStrings.add(notiString);
+        }
+        return notificationStrings;
+    }
+
+    private Notification convertStringToNotification(String notiString){
+        Notification notification = new Notification();
+        String[] stringArr = notiString.split("\\|");
+        notification.setTitle(stringArr[0]);
+        notification.setMessage(stringArr[1]);
+        notification.setTime(stringArr[2]);
+
+        return notification;
     }
 }

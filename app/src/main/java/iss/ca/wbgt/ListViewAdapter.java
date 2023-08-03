@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class ListViewAdapter extends ArrayAdapter<Object> {
     private final Context context;
 
-    protected ArrayList<Notification> notifications = new ArrayList<Notification>();
+    protected ArrayList<Notification> notifications;
     public ListViewAdapter(Context context, ArrayList<Notification> notifications){
         super(context, R.layout.item_notification);
         this.context = context;
@@ -33,10 +33,13 @@ public class ListViewAdapter extends ArrayAdapter<Object> {
         }
         TextView title = view.findViewById(R.id.title);
         title.setText(notifications.get(pos).getTitle());
+
         TextView msgBody = view.findViewById(R.id.message_body);
         msgBody.setText(notifications.get(pos).getMessage());
+
         TextView time = view.findViewById(R.id.timeTxt);
         time.setText(notifications.get(pos).getTime());
+
         ImageView imageView = view.findViewById(R.id.arrow_head);
         imageView.setImageResource(notifications.get(pos).getDrawable());
         return view;

@@ -4,7 +4,11 @@ public class Notification {
     private String title;
     private String message;
     private String time;
-    private int drawable;
+    private final int drawable;
+
+    public Notification(){
+        this.drawable = R.drawable.right;
+    }
 
     public Notification(String title, String message, String time){
         this.title = title;
@@ -24,5 +28,16 @@ public class Notification {
     }
     public int getDrawable(){
         return this.drawable;
+    }
+
+    public void setTitle(String title){
+        this.title = title;
+    }
+    public void setMessage(String message){
+        this.message = message;
+    }
+
+    public void setTime(String time){
+        this.time = time;
     }
 }

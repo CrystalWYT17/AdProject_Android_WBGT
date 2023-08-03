@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
     private boolean isClickedNotification = false;
+    private Drawable originalDrawable;
+    private Drawable tintedDrawable;
+    private ImageView notificationBell;
 
     //To Store Notification
     File mTargetFile;
@@ -79,15 +82,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //notification icon
 
-        Drawable originalDrawable = AppCompatResources.getDrawable(MainActivity.this, R.drawable.notification);
+        originalDrawable = AppCompatResources.getDrawable(MainActivity.this, R.drawable.notification);
+        tintedDrawable = originalDrawable.getConstantState().newDrawable().mutate();
+        DrawableCompat.setTint(tintedDrawable, Color.GREEN);
 
-        ImageView notificationBell = findViewById(R.id.notification_badge);
+        notificationBell = findViewById(R.id.notification_badge);
         //switch to notification fragment
         notificationBell.setOnClickListener(v->{
             isClickedNotification = !isClickedNotification;
             if(isClickedNotification){
-                Drawable tintedDrawable = originalDrawable.getConstantState().newDrawable().mutate();
-                DrawableCompat.setTint(tintedDrawable, Color.GREEN);
                 notificationBell.setImageDrawable(tintedDrawable);
                 //switch to notification fragment
                 Fragment notificationFragment = new NotificationFragment();
@@ -172,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             transaction.commit();
         }
 
+
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -200,6 +204,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, mainFragment);
             transaction.commit();
+        }
+        if (isClickedNotification){
+            notificationBell.setImageDrawable(originalDrawable);
         }
 
     }

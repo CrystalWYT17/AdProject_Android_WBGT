@@ -23,7 +23,7 @@ public class ListViewAdapter extends ArrayAdapter<Object> {
         super(context, R.layout.item_notification);
         this.context = context;
         this.notifications = notifications;
-        add(new Object[notifications.size()]);
+        addAll(new Object[notifications.size()]);
     }
 
     public View getView(int pos, View view, @NonNull ViewGroup parent){

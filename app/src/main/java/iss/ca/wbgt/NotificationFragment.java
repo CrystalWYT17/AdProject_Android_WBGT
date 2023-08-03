@@ -89,16 +89,16 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
         writeToFile();
         readFromFile();
 
-//        ListViewAdapter adapter = new ListViewAdapter(getActivity(), notifications);
-//        ListView listView = rootView.findViewById(R.id.notification_list);
-//        if(listView!=null){
-//            listView.setAdapter(adapter);
-//            listView.setOnItemClickListener(this);
-//        }
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.notification_list);
-        NotificationListAdapter adapter = new NotificationListAdapter(notifications);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ListViewAdapter adapter = new ListViewAdapter(getActivity(), notificationsTest);
+        ListView listView = rootView.findViewById(R.id.notification_list);
+        if(listView!=null){
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(this);
+        }
+//        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.notification_list);
+//        NotificationListAdapter adapter = new NotificationListAdapter(notifications);
+//        recyclerView.setAdapter(adapter);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
         return rootView;
@@ -160,6 +160,9 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
         notificationList.add(new Notification("Title3", "Body3", "Time3"));
         notificationList.add(new Notification("Title4", "Body4", "Time4"));
         notificationList.add(new Notification("Title5", "Body5", "Time5"));
+        notificationList.add(new Notification("Title6", "Body6", "Time6"));
+        notificationList.add(new Notification("Title7", "Body7", "Time7"));
+        notificationList.add(new Notification("Title8", "Body8", "Time8"));
         notificationList.add(new Notification("Title6", "Body6", "Time6"));
         notificationList.add(new Notification("Title7", "Body7", "Time7"));
         notificationList.add(new Notification("Title8", "Body8", "Time8"));

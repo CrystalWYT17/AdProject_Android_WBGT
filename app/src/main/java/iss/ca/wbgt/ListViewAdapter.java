@@ -18,8 +18,8 @@ import java.util.ArrayList;
 public class ListViewAdapter extends ArrayAdapter<Object> {
     private final Context context;
 
-    protected ArrayList<Notification> notifications;
-    public ListViewAdapter(Context context, ArrayList<Notification> notifications){
+    protected ArrayList<NotificationModel> notifications;
+    public ListViewAdapter(Context context, ArrayList<NotificationModel> notifications){
         super(context, R.layout.item_notification);
         this.context = context;
         this.notifications = notifications;

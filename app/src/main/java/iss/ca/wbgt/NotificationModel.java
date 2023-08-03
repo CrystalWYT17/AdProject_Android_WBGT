@@ -1,16 +1,16 @@
 package iss.ca.wbgt;
 
-public class Notification {
+public class NotificationModel {
     private String title;
     private String message;
     private String time;
     private final int drawable;
 
-    public Notification(){
+    public NotificationModel(){
         this.drawable = R.drawable.right;
     }
 
-    public Notification(String title, String message, String time){
+    public NotificationModel(String title, String message, String time){
         this.title = title;
         this.message = message;
         this.time = time;

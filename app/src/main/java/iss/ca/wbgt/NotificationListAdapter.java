@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class NotificationListAdapter extends RecyclerView.Adapter<NotificationListAdapter.ItemView> {
-    private List<Notification> notificationList;
+    private List<NotificationModel> notificationList;
 
-    public NotificationListAdapter(List<Notification> notificationList){
+    public NotificationListAdapter(List<NotificationModel> notificationList){
         this.notificationList = notificationList;
     }
 

@@ -39,10 +39,10 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
     private String mParam2;
 
     //Notification Data
-    private ArrayList<Notification> notifications;
+    private ArrayList<NotificationModel> notifications;
     File mTargetFile;
-    private ArrayList<Notification> notificationList = new ArrayList<Notification>();
-    private ArrayList<Notification> notificationsTest = new ArrayList<Notification>();
+    private ArrayList<NotificationModel> notificationList = new ArrayList<NotificationModel>();
+    private ArrayList<NotificationModel> notificationsTest = new ArrayList<NotificationModel>();
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -110,10 +110,10 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
     }
 
     private void getNotificationList(){
-        notifications = new ArrayList<Notification>();
-        notifications.add(new Notification("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
-        notifications.add(new Notification("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
-        notifications.add(new Notification("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
+        notifications = new ArrayList<NotificationModel>();
+        notifications.add(new NotificationModel("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
+        notifications.add(new NotificationModel("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
+        notifications.add(new NotificationModel("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
     }
 
     //Notification
@@ -155,29 +155,29 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
 
     protected ArrayList<String> getNotificationString(){
         //initialize some notification data for testing purpose
-        notificationList.add(new Notification("Title1", "Body1", "Time1"));
-        notificationList.add(new Notification("Title2", "Body2", "Time2"));
-        notificationList.add(new Notification("Title3", "Body3", "Time3"));
-        notificationList.add(new Notification("Title4", "Body4", "Time4"));
-        notificationList.add(new Notification("Title5", "Body5", "Time5"));
-        notificationList.add(new Notification("Title6", "Body6", "Time6"));
-        notificationList.add(new Notification("Title7", "Body7", "Time7"));
-        notificationList.add(new Notification("Title8", "Body8", "Time8"));
-        notificationList.add(new Notification("Title6", "Body6", "Time6"));
-        notificationList.add(new Notification("Title7", "Body7", "Time7"));
-        notificationList.add(new Notification("Title8", "Body8", "Time8"));
+        notificationList.add(new NotificationModel("Title1", "Body1", "Time1"));
+        notificationList.add(new NotificationModel("Title2", "Body2", "Time2"));
+        notificationList.add(new NotificationModel("Title3", "Body3", "Time3"));
+        notificationList.add(new NotificationModel("Title4", "Body4", "Time4"));
+        notificationList.add(new NotificationModel("Title5", "Body5", "Time5"));
+        notificationList.add(new NotificationModel("Title6", "Body6", "Time6"));
+        notificationList.add(new NotificationModel("Title7", "Body7", "Time7"));
+        notificationList.add(new NotificationModel("Title8", "Body8", "Time8"));
+        notificationList.add(new NotificationModel("Title6", "Body6", "Time6"));
+        notificationList.add(new NotificationModel("Title7", "Body7", "Time7"));
+        notificationList.add(new NotificationModel("Title8", "Body8", "Time8"));
 
         ArrayList<String> notificationStrings = new ArrayList<String>();
 
-        for(Notification notification: notificationList){
+        for(NotificationModel notification: notificationList){
             String notiString = notification.getTitle()+"|"+notification.getMessage()+"|"+notification.getTime();
             notificationStrings.add(notiString);
         }
         return notificationStrings;
     }
 
-    private Notification convertStringToNotification(String notiString){
-        Notification notification = new Notification();
+    private NotificationModel convertStringToNotification(String notiString){
+        NotificationModel notification = new NotificationModel();
         String[] stringArr = notiString.split("\\|");
         notification.setTitle(stringArr[0]);
         notification.setMessage(stringArr[1]);

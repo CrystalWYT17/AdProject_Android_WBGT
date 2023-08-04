@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -66,7 +67,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Station banyanStation = new Station("S117", "Ban Yan", 103.679, 1.256);
     private Station westCoastStation = new Station("S116", "West Coast", 103.754, 1.281);
@@ -125,9 +126,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         notificationBell = findViewById(R.id.notification_badge);
         //switch to notification fragment
-        notificationBell.setOnClickListener(v->{
+        notificationBell.setOnClickListener(v -> {
             isClickedNotification = !isClickedNotification;
-            if(isClickedNotification){
+            if (isClickedNotification) {
                 notificationBell.setImageDrawable(tintedDrawable);
                 //switch to notification fragment
                 Fragment notificationFragment = new NotificationFragment();
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 transaction.setCustomAnimations(
                         R.anim.enter_right_to_left, R.anim.exit_right_to_left, R.anim.enter_left_to_right, R.anim.exit_left_to_right
                 ).replace(R.id.fragment_container, notificationFragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
-            }else{
+            } else {
                 notificationBell.setImageDrawable(originalDrawable);
                 Fragment mainFragment = new MainFragment();
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -149,11 +150,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //store notifications to file
         String folder = "NotificationsTest";
         String fileName = "notification_list";
-        mTargetFile = new File(getFilesDir(), folder+"/"+fileName);
+        mTargetFile = new File(getFilesDir(), folder + "/" + fileName);
         writeToFile();
         readFromFile();
-        System.out.println("NotiTest"+notificationsTest);
-
+        System.out.println("NotiTest" + notificationsTest);
 
 
         Places.initialize(getApplicationContext(), apiKey);
@@ -190,10 +190,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if(item.getItemId() == R.id.nav_station){
+        if (item.getItemId() == R.id.nav_station) {
             Fragment fragment = new StationFragment();
             transaction.replace(R.id.fragment_container, fragment);
-        //    transaction.addToBackStack(null);
+            //    transaction.addToBackStack(null);
             transaction.commit();
         } else if (item.getItemId() == R.id.home) {
             Fragment fragment = new MainFragment();
@@ -203,9 +203,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (item.getItemId() == R.id.nav_about) {
             Fragment fragment = new AboutFragment();
             transaction.replace(R.id.fragment_container, fragment);
-           // transaction.addToBackStack(null);
+            // transaction.addToBackStack(null);
             transaction.commit();
-        } else if (item.getItemId()==R.id.nav_faq) {
+        } else if (item.getItemId() == R.id.nav_faq) {
             Fragment fragment = new FaqFragment();
             transaction.replace(R.id.fragment_container, fragment);
             //transaction.addToBackStack(null);
@@ -242,49 +242,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             transaction.replace(R.id.fragment_container, mainFragment);
             transaction.commit();
         }
-        if (isClickedNotification){
+        if (isClickedNotification) {
             notificationBell.setImageDrawable(originalDrawable);
         }
 
     }
 
-    protected void writeToFile(){
+    protected void writeToFile() {
         ArrayList<String> notificationString = getNotificationString();
         try {
             File parent = mTargetFile.getParentFile();
-            if(!parent.exists() && !parent.mkdirs()){
-                throw new IllegalStateException("Could not create dir: "+ parent);
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new IllegalStateException("Could not create dir: " + parent);
             }
             FileOutputStream fos = new FileOutputStream(mTargetFile);
-            for (String notification: notificationString){
-                fos.write((notification+"\n").getBytes());
+            for (String notification : notificationString) {
+                fos.write((notification + "\n").getBytes());
             }
             fos.close();
             Toast.makeText(getApplicationContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected void readFromFile(){
-        try{
+    protected void readFromFile() {
+        try {
             FileInputStream fis = new FileInputStream(mTargetFile);
             DataInputStream dis = new DataInputStream(fis);
             BufferedReader br = new BufferedReader(new InputStreamReader(dis));
             String strLine;
             //Assign the lines from buffer reader to strline and check if it is null
-            while ((strLine = br.readLine())!= null){
+            while ((strLine = br.readLine()) != null) {
                 notificationsTest.add(convertStringToNotification(strLine));
             }
             dis.close();
             //mInputTxt.setText(data);
             Toast.makeText(this, "Read File OK!", Toast.LENGTH_SHORT).show();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected ArrayList<String> getNotificationString(){
+    protected ArrayList<String> getNotificationString() {
         //initialize some notification data for testing purpose
         notifications.add(new NotificationModel("Title1", "Body1", "Time1"));
         notifications.add(new NotificationModel("Title2", "Body2", "Time2"));
@@ -297,14 +297,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ArrayList<String> notificationStrings = new ArrayList<String>();
 
-        for(NotificationModel notification: notifications){
-            String notiString = notification.getTitle()+"|"+notification.getMessage()+"|"+notification.getTime();
+        for (NotificationModel notification : notifications) {
+            String notiString = notification.getTitle() + "|" + notification.getMessage() + "|" + notification.getTime();
             notificationStrings.add(notiString);
         }
         return notificationStrings;
     }
 
-    private NotificationModel convertStringToNotification(String notiString){
+    private NotificationModel convertStringToNotification(String notiString) {
         NotificationModel notification = new NotificationModel();
         String[] stringArr = notiString.split("\\|");
         notification.setTitle(stringArr[0]);
@@ -347,6 +347,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQCODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+                locationResult = fusedLocationClient.getLastLocation();
                 getCurrentLocation();
             }
         }

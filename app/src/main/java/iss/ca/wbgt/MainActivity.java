@@ -20,6 +20,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -30,6 +31,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -110,8 +112,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
     private FindCurrentPlaceRequest request = FindCurrentPlaceRequest.newInstance(placeFields);
 
-    private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION};
-//    private String[] backgroundPermission = {Manifest.permission.ACCESS_BACKGROUND_LOCATION};
+    private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+
+    private LocationManager locationManager;
+    private Location location;
+    private boolean isGPSEnabled;
+    private boolean isNetworkEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -316,9 +322,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // location permission
     private void checkPermission() {
-        if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            locationResult = fusedLocationClient.getLastLocation();
+        if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED) {
+//            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//            locationResult = fusedLocationClient.getLastLocation();
             getCurrentLocation();
 
         } else {
@@ -329,29 +335,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // get user current location
     public void getCurrentLocation() {
 
-        locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    lastKnownLocation = task.getResult();
-                    if (lastKnownLocation != null) {
-                        calculateDistance(lastKnownLocation);
+        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        if (isGPSEnabled && isNetworkEnabled) {
+            if (locationManager != null) {
+                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if(location != null){
+                    calculateDistance(location);
+                    Log.i("currentlocation","lat:"+location.getLatitude()+" long: "+location.getLongitude());
+                }
+                else{
+                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if(location != null){
+                        calculateDistance(location);
+                        Log.i("CURRENT","lat: "+location.getLatitude()+" long: "+location.getLongitude());
                     }
                 }
             }
-        });
+        }
+        else{
+            Toast.makeText(getApplicationContext(), "Make sure you have GPS or Network service available.", Toast.LENGTH_SHORT).show();
+        }
+
+//        locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Location> task) {
+//                if (task.isSuccessful()) {
+//                    lastKnownLocation = task.getResult();
+//                    if (lastKnownLocation != null) {
+//                        calculateDistance(lastKnownLocation);
+//                    }
+//                }
+//            }
+//        });
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQCODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-                locationResult = fusedLocationClient.getLastLocation();
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+//                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//                locationResult = fusedLocationClient.getLastLocation();
                 getCurrentLocation();
             }
         }
@@ -434,15 +464,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 Object obj = response.body();
-                Log.i("RESPONSE", obj.toString());
-//                notiCreater = new NotificationCreater();
                 createNotificationChannel();
                 createNotification(35);
+                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
+                startService(intent);
             }
 
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
-                Log.e("CALL API",t.getMessage());
                 Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

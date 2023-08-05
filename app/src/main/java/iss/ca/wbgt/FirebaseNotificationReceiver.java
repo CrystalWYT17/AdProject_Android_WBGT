@@ -12,6 +12,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -19,7 +22,7 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token){
-        //Log.d(TAG,"Refreshed Token: "+ token);
+        Log.i("NewToken","Refreshed Token: "+ token);
     }
 
     @Override
@@ -28,6 +31,23 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
             showNotification(remoteMessage.getNotification().getTitle(),
                     remoteMessage.getNotification().getBody());
         }
+    }
+
+    @Override
+    public void onCreate() {
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if(!task.isSuccessful()){
+                    Log.e("GetToken","Error: "+task.getException());
+                    return;
+                }
+                String token = task.getResult();
+                Log.i("Token",token);
+            }
+        });
+
     }
 
     public void showNotification(String title, String body){

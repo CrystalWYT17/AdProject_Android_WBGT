@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,6 +91,22 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
+
+        //refresh
+        SwipeRefreshLayout refreshLayout = rootView.findViewById(R.id.refreshLayout);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //make api call and refresh data
+                System.out.println("done refreshing");
+                refreshLayout.setRefreshing(false);
+            }
+        });
+
+
+
+
+        //linechart
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         getEntries();
         myLineChart = new MyLineChart(lineChart, lineEntries);

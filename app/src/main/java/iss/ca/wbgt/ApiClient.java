@@ -12,8 +12,9 @@ public class ApiClient {
     private static Retrofit retrofit;
 
 //    private static final String BASE_URL = "http://127.0.0.1:8081";
+//    https://wbgtgroup9.azurewebsites.net/predict?hour=5&station_id=S50
 
-    private static final String BASE_URL ="https://api.data.gov.sg";
+    private static final String BASE_URL ="https://wbgtgroup9.azurewebsites.net";
     //empty constructor
     public ApiClient(){
     }

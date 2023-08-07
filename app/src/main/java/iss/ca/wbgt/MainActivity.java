@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Station westCoastStation = new Station("S116", "West Coast", 103.754, 1.281);
     private Station clementiStation = new Station("S50", "Clementi", 103.7768, 1.3337);
     private Station sentosaStation = new Station("S60", "Sentosa", 103.8279, 1.25);
+    private Station eastCoastStation = new Station("S107","East Coast Parkway",103.9625,1.3135);
+    private Station kimChuanStation = new Station("S43","Kim Chuan Street",103.8878,1.3399);
     private Location lastKnownLocation;
     private Task<Location> locationResult;
     private FusedLocationProviderClient fusedLocationClient;
@@ -382,6 +384,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Location.distanceBetween(location.getLatitude(),location.getLongitude(),clementiStation.getLatitude(),clementiStation.getLongitude(),results);
         dstWithStation.put(clementiStation.getId(),results[0]);
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),eastCoastStation.getLatitude(),eastCoastStation.getLongitude(),results);
+        dstWithStation.put(eastCoastStation.getId(),results[0]);
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),kimChuanStation.getLatitude(),kimChuanStation.getLongitude(),results);
+        dstWithStation.put(kimChuanStation.getId(),results[0]);
         Comparator<Map.Entry<String,Float>> valueComparator = new Comparator<Map.Entry<String, Float>>() {
             @Override
             public int compare(Map.Entry<String, Float> t1, Map.Entry<String, Float> t2) {
@@ -398,17 +406,61 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.i("NEAREST STATION",nearestStation);
 
         getCurrentWBGTData(nearestStation);
+        getXDayForecast(nearestStation);
+        getXHourForecast(nearestStation);
     }
 
     // get current wbgt value of nearest station by calling api
     public void getCurrentWBGTData(String stationId){
         ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-//        Call<Object> callApi = apiInterface.getCurrentWBGT(stationId);
-        Call<Object> callApi = apiInterface.getCurrentWBGT();
+        Call<Object> callApi = apiInterface.getCurrentWBGT(stationId);
         callApi.enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 Object obj = response.body();
+                Log.i("Current WBGT",obj.toString());
+//                createNotificationChannel();
+//                createNotification(35);
+                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
+                startService(intent);
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void getXDayForecast(String stationId){
+        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+        Call<Object> callApi = apiInterface.getXDayForecast(5,stationId);
+        callApi.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Object obj = response.body();
+                Log.i("XDayForecast",obj.toString());
+//                createNotificationChannel();
+//                createNotification(35);
+                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
+                startService(intent);
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void getXHourForecast(String stationId){
+        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+        Call<Object> callApi = apiInterface.getXHourForecast(12,stationId);
+        callApi.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Object obj = response.body();
+                Log.i("XHourForecast",obj.toString());
 //                createNotificationChannel();
 //                createNotification(35);
                 Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);

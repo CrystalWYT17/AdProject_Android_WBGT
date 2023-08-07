@@ -70,19 +70,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Task<Location> locationResult;
     private FusedLocationProviderClient fusedLocationClient;
 
-    //    notification
-    private NotificationModel notification;
-    private NotificationManager notificationManager;
-    private Notification alertNoti;
-
     //notification Fragment
     private Fragment prevFragment = new MainFragment();
-
-    public final int NOTIFY_ID = 9999;
-
-    private final String CHANNEL_ID = "7777";
-
-    private final String CHANNEL_NAME = "WBGT Notification";
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -98,13 +87,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayList<NotificationModel> notificationsTest = new ArrayList<NotificationModel>();
 
     private int LOCATION_PERMISSION_REQCODE = 1111;
-//    private int BACKGROUND_PERMISSION_REQCODE = 2222;
 
     private final String apiKey = BuildConfig.MAPS_API_KEY;
     private PlacesClient placesClient;
 
     private List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
-    private FindCurrentPlaceRequest request = FindCurrentPlaceRequest.newInstance(placeFields);
 
     private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
 
@@ -379,40 +366,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void createNotificationChannel() {
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
-
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance);
-
-        channel.setDescription("Hello. This is from WBGT");
-
-        notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
-    }
-
-
-    public void createNotification(int wbgt) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-
-        builder.setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("WBGT Condition is " + wbgt)
-                .setContentText("WBGT right now is Black condition. You should stay away under sun directly or ")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-
-        alertNoti = builder.build();
-        NotificationManagerCompat mgr = NotificationManagerCompat.from(this);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mgr.notify(NOTIFY_ID, alertNoti);
-
-    }
-
     // calculate distance between user and stations
     public void calculateDistance(Location location){
         float[] results = new float[1];
@@ -456,8 +409,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 Object obj = response.body();
-                createNotificationChannel();
-                createNotification(35);
+//                createNotificationChannel();
+//                createNotification(35);
                 Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
                 startService(intent);
             }

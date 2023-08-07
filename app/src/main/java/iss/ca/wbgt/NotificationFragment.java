@@ -1,8 +1,13 @@
 package iss.ca.wbgt;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,6 +45,8 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
 
     //Notification Data
     private ArrayList<NotificationModel> notifications;
+    private BroadcastReceiver receiver;
+    private static final String NEW_NOTIFICATION_ACTION="new_notification_action";
     File mTargetFile;
     private ArrayList<NotificationModel> notificationList = new ArrayList<NotificationModel>();
     private ArrayList<NotificationModel> notificationsTest = new ArrayList<NotificationModel>();
@@ -81,6 +88,25 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_notification, container, false);
         getNotificationList();
+        ListViewAdapter adapter = new ListViewAdapter(getActivity(), notifications);
+        ListView listView = rootView.findViewById(R.id.notification_list);
+        if(listView!=null){
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(this);
+        }
+
+        //receive broadcast
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(intent.getAction().equals(NEW_NOTIFICATION_ACTION)){
+                    NotificationModel newNotification = (NotificationModel) intent.getParcelableExtra("notification");
+                    notificationList.add(newNotification);
+                    //adapter.notifyDataSetChanged();
+                }
+            }
+        };
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter(NEW_NOTIFICATION_ACTION));
         //store and retrieve notification data
         //store notifications to file
         String folder = "NotificationsTest";
@@ -89,12 +115,6 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
         writeToFile();
         readFromFile();
 
-        ListViewAdapter adapter = new ListViewAdapter(getActivity(), notificationsTest);
-        ListView listView = rootView.findViewById(R.id.notification_list);
-        if(listView!=null){
-            listView.setAdapter(adapter);
-            listView.setOnItemClickListener(this);
-        }
 //        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.notification_list);
 //        NotificationListAdapter adapter = new NotificationListAdapter(notifications);
 //        recyclerView.setAdapter(adapter);

@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,7 +33,8 @@ import java.util.Map;
  */
 public class StationFragment extends Fragment implements AdapterView.OnItemSelectedListener, OnMapReadyCallback {
 
-    private String[] stations = {"Station One", "Station Two", "Station Three"};
+    private List<String> stationNameList;
+    private List<Station> stationList;
     private MapView mMapView;
     //linechart
     private LineChart lineChart;
@@ -90,7 +92,11 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
         newLineChart.drawLineChart();
 
-        ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, stations);
+        //initialize station data
+        stationList = getStationList();
+        initializeStationNameList(stationList);
+
+        ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, stationNameList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
@@ -146,10 +152,18 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     @Override
     public void onMapReady(GoogleMap map) {
-        LatLng markerLocation = new LatLng(1.25,103.8279);
-        map.addMarker(new MarkerOptions().position(new LatLng(1.25,103.8279)).title("Marker"));
-        int zoomLevel = 12;
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(markerLocation, zoomLevel));
+        //LatLng markerLocation = new LatLng(1.25,103.8279);
+//        map.addMarker(new MarkerOptions().position(new LatLng(1.25,103.8279)).title("Marker"));
+//        int zoomLevel = 12;
+//        map.animateCamera(CameraUpdateFactory.newLatLngZoom(markerLocation, zoomLevel));
+//        map.getUiSettings().setZoomControlsEnabled(true);
+
+        for(Station station: stationList){
+            int zoomLevel = 10;
+            LatLng markerLocation = new LatLng(station.getLatitude(),station.getLongitude());
+            map.addMarker(new MarkerOptions().position(markerLocation).title(station.getName()));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(markerLocation, zoomLevel));
+        }
         map.getUiSettings().setZoomControlsEnabled(true);
     }
 
@@ -178,5 +192,22 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         lineEntries.add(new Entry(21f, 8f));
         lineEntries.add(new Entry(22f, 6f));
         lineEntries.add(new Entry(23f, 4f));
+    }
+    private List<Station> getStationList(){
+        List<Station> stationList = new ArrayList<>();
+        stationList.add(new Station("S117", "Ban Yan", 103.679, 1.256));
+        stationList.add(new Station("S116", "West Coast", 103.754, 1.281));
+        stationList.add(new Station("S50", "Clementi", 103.7768, 1.3337));
+        stationList.add(new Station("S60", "Sentosa", 103.8279, 1.25));
+        stationList.add(new Station("S107","East Coast Parkway",103.9625,1.3135));
+        stationList.add(new Station("S43","Kim Chuan Street",103.8878,1.3399));
+        return stationList;
+    }
+
+    private void initializeStationNameList(List<Station> stationList){
+        stationNameList = new ArrayList<String>();
+        for (Station station: stationList){
+            stationNameList.add(station.getName());
+        }
     }
 }

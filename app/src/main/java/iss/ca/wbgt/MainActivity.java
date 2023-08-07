@@ -13,7 +13,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import retrofit2.Call;
@@ -28,7 +27,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -36,19 +34,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.Switch;
-import android.widget.Toast;
 
-import com.google.android.gms.common.api.ApiException;
+import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
 
@@ -60,7 +52,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -83,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NotificationModel notification;
     private NotificationManager notificationManager;
     private Notification alertNoti;
+
+    //notification Fragment
+    private Fragment prevFragment = new MainFragment();
 
     public final int NOTIFY_ID = 9999;
 
@@ -134,7 +128,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //switch to notification fragment
         notificationBell.setOnClickListener(v -> {
             isClickedNotification = !isClickedNotification;
+            //get current fragment
             if (isClickedNotification) {
+                prevFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 notificationBell.setImageDrawable(tintedDrawable);
                 //switch to notification fragment
                 Fragment notificationFragment = new NotificationFragment();
@@ -145,11 +141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 notificationBell.setImageDrawable(originalDrawable);
                 Fragment mainFragment = new MainFragment();
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.setCustomAnimations(
-                        R.anim.enter_left_to_right, R.anim.exit_left_to_right,
-                        R.anim.enter_right_to_left, R.anim.exit_right_to_left
-                ).replace(R.id.fragment_container, mainFragment).commit();
+                makeFragmentTransaction(prevFragment);
             }
         });
 
@@ -475,5 +467,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void makeFragmentTransaction(Fragment fragment){
+        //Fragment mainFragment = new MainFragment();
+        if(fragment instanceof MainFragment){
+            fragment = new MainFragment();
+        } else if (fragment instanceof StationFragment) {
+            fragment = new StationFragment();
+        }
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.enter_left_to_right, R.anim.exit_left_to_right,
+                R.anim.enter_right_to_left, R.anim.exit_right_to_left
+        ).replace(R.id.fragment_container, fragment).commit();
     }
 }

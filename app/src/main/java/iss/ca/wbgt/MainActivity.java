@@ -24,6 +24,8 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -96,11 +98,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
 
     private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+    private String[] notificationPermission = {Manifest.permission.POST_NOTIFICATIONS};
 
     private LocationManager locationManager;
     private Location location;
     private boolean isGPSEnabled;
     private boolean isNetworkEnabled;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,8 +142,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String folder = "NotificationsTest";
         String fileName = "notification_list";
         mTargetFile = new File(getFilesDir(), folder + "/" + fileName);
-        writeToFile();
-        readFromFile();
         System.out.println("NotiTest" + notificationsTest);
 
 
@@ -170,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStart() {
         checkPermission();
+        checkNotificationPermission();
         super.onStart();
     }
 
@@ -217,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (currentFragment instanceof MainFragment) {
             super.onBackPressed();
         } else if (currentFragment instanceof NotificationFragment) {
+            //isClickedNotification = !isClickedNotification;
             Fragment mainFragment = new MainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(
@@ -235,61 +239,61 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    protected void writeToFile() {
-        ArrayList<String> notificationString = getNotificationString();
-        try {
-            File parent = mTargetFile.getParentFile();
-            if (!parent.exists() && !parent.mkdirs()) {
-                throw new IllegalStateException("Could not create dir: " + parent);
-            }
-            FileOutputStream fos = new FileOutputStream(mTargetFile);
-            for (String notification : notificationString) {
-                fos.write((notification + "\n").getBytes());
-            }
-            fos.close();
-            Toast.makeText(getApplicationContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    protected void writeToFile() {
+//        ArrayList<String> notificationString = getNotificationString();
+//        try {
+//            File parent = mTargetFile.getParentFile();
+//            if (!parent.exists() && !parent.mkdirs()) {
+//                throw new IllegalStateException("Could not create dir: " + parent);
+//            }
+//            FileOutputStream fos = new FileOutputStream(mTargetFile);
+//            for (String notification : notificationString) {
+//                fos.write((notification + "\n").getBytes());
+//            }
+//            fos.close();
+//            Toast.makeText(getApplicationContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    protected void readFromFile() {
-        try {
-            FileInputStream fis = new FileInputStream(mTargetFile);
-            DataInputStream dis = new DataInputStream(fis);
-            BufferedReader br = new BufferedReader(new InputStreamReader(dis));
-            String strLine;
-            //Assign the lines from buffer reader to strline and check if it is null
-            while ((strLine = br.readLine()) != null) {
-                notificationsTest.add(convertStringToNotification(strLine));
-            }
-            dis.close();
-            //mInputTxt.setText(data);
-            Toast.makeText(this, "Read File OK!", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    protected void readFromFile() {
+//        try {
+//            FileInputStream fis = new FileInputStream(mTargetFile);
+//            DataInputStream dis = new DataInputStream(fis);
+//            BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+//            String strLine;
+//            //Assign the lines from buffer reader to strline and check if it is null
+//            while ((strLine = br.readLine()) != null) {
+//                notificationsTest.add(convertStringToNotification(strLine));
+//            }
+//            dis.close();
+//            //mInputTxt.setText(data);
+//            Toast.makeText(this, "Read File OK!", Toast.LENGTH_SHORT).show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    protected ArrayList<String> getNotificationString() {
-        //initialize some notification data for testing purpose
-        notifications.add(new NotificationModel("Title1", "Body1", "Time1"));
-        notifications.add(new NotificationModel("Title2", "Body2", "Time2"));
-        notifications.add(new NotificationModel("Title3", "Body3", "Time3"));
-        notifications.add(new NotificationModel("Title4", "Body4", "Time4"));
-        notifications.add(new NotificationModel("Title5", "Body5", "Time5"));
-        notifications.add(new NotificationModel("Title6", "Body6", "Time6"));
-        notifications.add(new NotificationModel("Title7", "Body7", "Time7"));
-        notifications.add(new NotificationModel("Title8", "Body8", "Time8"));
-
-        ArrayList<String> notificationStrings = new ArrayList<String>();
-
-        for (NotificationModel notification : notifications) {
-            String notiString = notification.getTitle() + "|" + notification.getMessage() + "|" + notification.getTime();
-            notificationStrings.add(notiString);
-        }
-        return notificationStrings;
-    }
+//    protected ArrayList<String> getNotificationString() {
+//        //initialize some notification data for testing purpose
+//        notifications.add(new NotificationModel("Title1", "Body1", "Time1"));
+//        notifications.add(new NotificationModel("Title2", "Body2", "Time2"));
+//        notifications.add(new NotificationModel("Title3", "Body3", "Time3"));
+//        notifications.add(new NotificationModel("Title4", "Body4", "Time4"));
+//        notifications.add(new NotificationModel("Title5", "Body5", "Time5"));
+//        notifications.add(new NotificationModel("Title6", "Body6", "Time6"));
+//        notifications.add(new NotificationModel("Title7", "Body7", "Time7"));
+//        notifications.add(new NotificationModel("Title8", "Body8", "Time8"));
+//
+//        ArrayList<String> notificationStrings = new ArrayList<String>();
+//
+//        for (NotificationModel notification : notifications) {
+//            String notiString = notification.getTitle() + "|" + notification.getMessage() + "|" + notification.getTime();
+//            notificationStrings.add(notiString);
+//        }
+//        return notificationStrings;
+//    }
 
     private NotificationModel convertStringToNotification(String notiString) {
         NotificationModel notification = new NotificationModel();
@@ -312,6 +316,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ActivityCompat.requestPermissions(this, locationPermission, LOCATION_PERMISSION_REQCODE);
         }
     }
+
+    private void checkNotificationPermission(){
+        if(checkSelfPermission(notificationPermission[0])==PackageManager.PERMISSION_GRANTED){
+            Log.d("notification permit", "granted");
+        }else {
+            requestPermission();
+        }
+    }
+
+    private void requestPermission(){
+        String[] permission = {Manifest.permission.POST_NOTIFICATIONS};
+        ActivityCompat.requestPermissions(this, permission, 1);
+    }
+
 
     // get user current location
     public void getCurrentLocation() {

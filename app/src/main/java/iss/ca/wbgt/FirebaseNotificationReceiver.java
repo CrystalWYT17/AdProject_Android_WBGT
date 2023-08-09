@@ -5,16 +5,12 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.nfc.Tag;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -23,10 +19,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -35,10 +32,8 @@ import java.util.UUID;
 
 public class FirebaseNotificationReceiver extends FirebaseMessagingService {
 
-    //    notification
-    private NotificationManager notificationManager;
-    public final int NOTIFY_ID = 9999;
-    private final String CHANNEL_ID = "7777";
+    public static final int NOTIFY_ID = 9999;
+    private static final String CHANNEL_ID = "7777";
     private static final String CHANNEL_NAME = "WBGT Notification";
 
     //to send broadcast notification
@@ -48,28 +43,35 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
     public void onNewToken(@NonNull String token){
         Log.i("NewToken","Refreshed Token: "+ token);
 //        uncomment when we test push notification
-//        String userId = getUserId();
-//        saveTokenToFirebaseStore(userId, token);
+        String userId = getUserId();
+        saveTokenToFirebaseStore(userId, token);
     }
 
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage){
+    public void onMessageReceived(@NonNull RemoteMessage remoteMessage){
         super.onMessageReceived(remoteMessage);
-//        Intent intent = getIn
-//        String wbgtValue =
+        System.out.println("Message Received");
         if(remoteMessage.getNotification() != null){
             //create notification
+            if(remoteMessage.getData() != null){
+                Log.d("STATION", remoteMessage.getData().toString());
+                String station = remoteMessage.getData().get("station_id");
+                //Log.d("STATION", station);
+            }else {
+                Log.d("STATION", "null for station");
+            }
             String title = remoteMessage.getNotification().getTitle();
             String body = remoteMessage.getNotification().getBody();
+            System.out.println(title + body);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
             String time = formatter.format(LocalDateTime.now());
             NotificationModel newNotification = new NotificationModel(title, body, time);
-            //send broadcast
-            Intent intent = new Intent();
-            intent.setAction(NEW_NOTIFICATION_ACTION);
-            intent.putExtra("notification", newNotification);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            //save notification to file
+            writeNotificationToFile(newNotification);
+            //get stationId and need to implement to get the nearest station
 
+
+            //create notification
             createNotification(title, body);
         }
     }
@@ -154,11 +156,34 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
             uuId = UUID.randomUUID().toString();
             SharedPreferences.Editor editor = pref.edit();
             editor.putString("id", uuId);
-            editor.commit();
+            editor.apply();
         }else {
             uuId = userId;
         }
         return uuId;
+    }
+
+    private void writeNotificationToFile(NotificationModel newNotification){
+        FileOutputStream fos = null;
+        try{
+            String folder = "Notifications";
+            String fileName = "notification_list";
+            File mTargetFile = new File(getApplication().getFilesDir(), folder+"/"+fileName);
+            Log.d("targetFile", mTargetFile.getAbsolutePath());
+            fos = new FileOutputStream(mTargetFile, true);
+            String notification = newNotification.getTitle()+"|"+newNotification.getMessage()+"|"+newNotification.getTime();
+            fos.write((notification+"\n").getBytes());
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if(fos !=null){
+                try {
+                    fos.close();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 //    public void showNotification(String title, String body){

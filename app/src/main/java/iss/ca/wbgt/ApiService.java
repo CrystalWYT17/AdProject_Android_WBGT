@@ -1,5 +1,8 @@
 package iss.ca.wbgt;
 
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.JsonElement;
@@ -29,7 +33,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ApiService extends AppCompatActivity {
+public class ApiService extends Service {
     private String currentStationName;
     private String currentWbgtValue;
     private Map<String,List<String>> dayForecast = new HashMap<>();
@@ -39,6 +43,22 @@ public class ApiService extends AppCompatActivity {
     public ApiService(){
 
     }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        String stationId = intent.getStringExtra("stationId");
+        stationData = (List<Station>) intent.getSerializableExtra("stationData");
+        getCurrentWBGTData(stationId);
+        return super.onStartCommand(intent, flags, startId);
+    }
+
 
     public UserCurrentData getCurrentData(){
         return this.currentData;
@@ -112,13 +132,13 @@ public class ApiService extends AppCompatActivity {
                         try {
                             jsonArray = new JSONArray(obj.toString());
                             JSONObject jsonObject = new JSONObject(jsonArray.get(0).toString());
-                            Optional<String> station= stationData.stream().filter(s -> s.getId() == stationId).map(Station::getName).findFirst();
+                            Optional<String> station= stationData.stream().filter(s -> s.getId().equals(stationId)).map(Station::getName).findFirst();
                             currentWbgtValue = jsonObject.get("WBGT").toString();
                             currentStationName = station.get();
                             currentData.setWbgtValue(currentWbgtValue);
                             currentData.setStationName(currentStationName);
-                            currentData.setStationId(stationId);
                             Log.i("Current WBGT", jsonObject.toString());
+
 
                         } catch (JSONException e) {
                             Log.e("Error",e.getMessage());
@@ -127,6 +147,14 @@ public class ApiService extends AppCompatActivity {
 
 //                createNotificationChannel();
 //                createNotification(35);
+
+                        Intent intent = new Intent();
+                        intent.setAction("CurrentWbgtCompleted");
+                        intent.putExtra("currentStationName",currentStationName);
+                        intent.putExtra("currentWbgt",currentWbgtValue);
+//                    intent.putExtra("currentWbgt",currentWbgtValue);
+//                    intent.putExtra("currentStationName",currentStationName);
+                        sendBroadcast(intent);
                     }
 
                     @Override
@@ -135,10 +163,10 @@ public class ApiService extends AppCompatActivity {
                     }
                 });
 
-
             }
         });
         bkThread.run();
+
 
         //        if(callApi.isExecuted()){
 //
@@ -150,58 +178,52 @@ public class ApiService extends AppCompatActivity {
 
     public void getXDayForecast(String stationId){
 
-        Thread bkThread = new Thread(new Runnable() {
+        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+        Call<Object> callApi = apiInterface.getXDayForecast(7,stationId);
+        callApi.enqueue(new Callback<Object>() {
             @Override
-            public void run() {
-                ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-                Call<Object> callApi = apiInterface.getXDayForecast(7,stationId);
-                callApi.enqueue(new Callback<Object>() {
-                    @Override
-                    public void onResponse(Call<Object> call, Response<Object> response) {
-                        Object obj = response.body();
-                        JSONArray jsonArray;
-                        JSONObject jsonObject;
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Object obj = response.body();
+                JSONArray jsonArray;
+                JSONObject jsonObject;
 //                Dictionary<String,Map<String,Double>> dayForecastDict = new Hashtable<>();
 
 
-                        try {
-                            jsonArray = new JSONArray(obj.toString());
+                try {
+                    jsonArray = new JSONArray(obj.toString());
 
-                            if(jsonArray.length() > 0){
-                                for(int i=0; i<jsonArray.length(); i++){
-                                    List<String> wbgtList = new ArrayList<String>();
-                                    jsonObject = new JSONObject(jsonArray.get(i).toString());
-                                    String day = checkDay(jsonObject.get("timestamp").toString());
-                                    wbgtList.add(String.valueOf(jsonObject.getDouble("min_wbgt")));
-                                    wbgtList.add(String.valueOf(jsonObject.getDouble("max_wbgt")));
+                    if(jsonArray.length() > 0){
+                        for(int i=0; i<jsonArray.length(); i++){
+                            List<String> wbgtList = new ArrayList<String>();
+                            jsonObject = new JSONObject(jsonArray.get(i).toString());
+                            String day = checkDay(jsonObject.get("timestamp").toString());
+                            wbgtList.add(String.valueOf(jsonObject.getDouble("min_wbgt")));
+                            wbgtList.add(String.valueOf(jsonObject.getDouble("max_wbgt")));
 //                            minMaxWbgt.put("low",jsonObject.getDouble("min_wbgt"));
 //                            minMaxWbgt.put("high",jsonObject.getDouble("max_wbgt"));
-                                    dayForecast.put(day,wbgtList);
-                                }
-                            }
-                            System.out.println("HEllo");
-                            Log.i("data", dayForecast.toString());
-
-                        } catch (JSONException e) {
-                            jsonArray = null;
-                        } catch (ParseException e){
-                            jsonArray = null;
+                            dayForecast.put(day,wbgtList);
                         }
+                    }
+                    System.out.println("HEllo");
+                    Log.i("data", dayForecast.toString());
 
-                        Log.i("MyData","sorry");
+                } catch (JSONException e) {
+                    jsonArray = null;
+                } catch (ParseException e){
+                    jsonArray = null;
+                }
+
+                Log.i("MyData","sorry");
 
 //                createNotificationChannel();
 //                createNotification(35);
-                    }
+            }
 
-                    @Override
-                    public void onFailure(Call<Object> call, Throwable t) {
-                        Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
             }
         });
-        bkThread.run();
 
 
     }

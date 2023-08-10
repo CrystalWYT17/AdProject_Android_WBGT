@@ -1,6 +1,8 @@
 package iss.ca.wbgt;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -169,15 +171,30 @@ public class MainFragment extends Fragment {
         // set station name and wbgt value
         TextView txtStationName = rootView.findViewById(R.id.station);
         TextView txtWbgtValue = rootView.findViewById(R.id.wbgt_value);
-        txtStationName.setText(stationName);
-        txtWbgtValue.setText(String.valueOf(wbgtValue));
+
+        SharedPreferences shr = getActivity().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
+        String currentStationName = shr.getString("currentStationName","");
+        String currentWbgt = shr.getString("currentWbgt","");
+        String dayForecastString = shr.getString("dayForecast","");
+
+        if(dayForecastString.isEmpty() && currentWbgt.isEmpty() && currentStationName.isEmpty()){
+            getDayForecastStaticData();
+            txtStationName.setText("Choa Chu Kang Station");
+            txtWbgtValue.setText("33");
+        }
+        else{
+//            convertStringToMap(dayForecastString);
+//            getDataForXDaysForecast();
+            txtStationName.setText(currentStationName);
+            txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
+        }
 
 
         //recyclerView
         recyclerView = (RecyclerView) rootView.findViewById(R.id.xDaysForecast);
         layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
-        getDataForXDaysForecast();
+//        getDataForXDaysForecast();
         recyclerAdapter = new RecyclerAdapter(forecastDayList);
         horizontalLayout = new LinearLayoutManager(
                 getActivity(),
@@ -242,5 +259,27 @@ public class MainFragment extends Fragment {
 //        forecastDayList.add(new ForecastDay("Sat", "35", "25"));
     }
 
+    public void convertStringToMap(String dayForecastString){
+        String[] eachDayList = dayForecastString.split("/");
+        String[] dayName;
+        String[] minMaxVal;
+        List<String> lowHigh = new ArrayList<>();
+        for(String eachDay: eachDayList){
+            dayName = eachDay.split(",");
+            minMaxVal = dayName[1].split("|");
+            lowHigh.add(minMaxVal[0]);
+            lowHigh.add(minMaxVal[1]);
+            dayForecast.put(dayName[0],lowHigh);
+        }
+    }
 
+    private void getDayForecastStaticData(){
+        forecastDayList.add(new ForecastDay("Today", "35", "25"));
+        forecastDayList.add(new ForecastDay("Mon", "35", "25"));
+        forecastDayList.add(new ForecastDay("Tue", "35", "25"));
+        forecastDayList.add(new ForecastDay("Wed", "35", "25"));
+        forecastDayList.add(new ForecastDay("Thu", "35", "25"));
+        forecastDayList.add(new ForecastDay("Fri", "35", "25"));
+        forecastDayList.add(new ForecastDay("Sat", "35", "25"));
+    }
 }

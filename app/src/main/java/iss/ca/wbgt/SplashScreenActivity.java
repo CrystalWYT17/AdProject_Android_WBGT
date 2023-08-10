@@ -25,6 +25,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -205,6 +206,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                writeToSharedPreference();
                 currentData = apiService.getCurrentData();
                 dayForecast = apiService.getDayForecast();
                 Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
@@ -216,35 +218,23 @@ public class SplashScreenActivity extends AppCompatActivity {
             }
         },10000);
 
-//        Thread bkThread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                try {
-//                    Thread.sleep(5000);
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                if(apiService.isFinishing()){
-//
-//                    }
-//
-//
-//
-//
-//                //        getCurrentWBGTData(nearestStation);
-////        getXDayForecast(nearestStation);
-////        getXHourForecast(nearestStation);
-//            }
-//        });
-//        bkThread.run();
-
-
-
 
     }
 
+    public void writeToSharedPreference(){
+        SharedPreferences shr = getSharedPreferences("wbgt_main_fragment",MODE_PRIVATE);
+        SharedPreferences.Editor editor = shr.edit();
+        editor.putString("currentStationName",currentData.getStationName());
+        editor.putString("currentWbgt",currentData.getWbgtValue());
+        editor.p
+    }
 
+    public String convertMapToString(Map<String,List<String>> dayForecast){
+        for(Map.Entry<String,List<String>> day: dayForecast.entrySet()){
+
+        }
+        return null;
+    }
 
 
 }

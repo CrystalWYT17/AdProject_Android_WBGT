@@ -24,6 +24,8 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
 
     private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+    private String[] notificationPermission = {Manifest.permission.POST_NOTIFICATIONS};
 
     private LocationManager locationManager;
     private Location location;
@@ -185,8 +188,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String folder = "NotificationsTest";
         String fileName = "notification_list";
         mTargetFile = new File(getFilesDir(), folder + "/" + fileName);
-        writeToFile();
-        readFromFile();
         System.out.println("NotiTest" + notificationsTest);
 
 
@@ -216,10 +217,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         transaction.addToBackStack(null);
         transaction.commit();
 
+
     }
 
     @Override
     protected void onStart() {
+        checkPermission();
+        checkNotificationPermission();
         super.onStart();
     }
 
@@ -267,6 +271,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (currentFragment instanceof MainFragment) {
             super.onBackPressed();
         } else if (currentFragment instanceof NotificationFragment) {
+            //isClickedNotification = !isClickedNotification;
             Fragment mainFragment = new MainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(
@@ -285,61 +290,61 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    protected void writeToFile() {
-        ArrayList<String> notificationString = getNotificationString();
-        try {
-            File parent = mTargetFile.getParentFile();
-            if (!parent.exists() && !parent.mkdirs()) {
-                throw new IllegalStateException("Could not create dir: " + parent);
-            }
-            FileOutputStream fos = new FileOutputStream(mTargetFile);
-            for (String notification : notificationString) {
-                fos.write((notification + "\n").getBytes());
-            }
-            fos.close();
-            Toast.makeText(getApplicationContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    protected void writeToFile() {
+//        ArrayList<String> notificationString = getNotificationString();
+//        try {
+//            File parent = mTargetFile.getParentFile();
+//            if (!parent.exists() && !parent.mkdirs()) {
+//                throw new IllegalStateException("Could not create dir: " + parent);
+//            }
+//            FileOutputStream fos = new FileOutputStream(mTargetFile);
+//            for (String notification : notificationString) {
+//                fos.write((notification + "\n").getBytes());
+//            }
+//            fos.close();
+//            Toast.makeText(getApplicationContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    protected void readFromFile() {
-        try {
-            FileInputStream fis = new FileInputStream(mTargetFile);
-            DataInputStream dis = new DataInputStream(fis);
-            BufferedReader br = new BufferedReader(new InputStreamReader(dis));
-            String strLine;
-            //Assign the lines from buffer reader to strline and check if it is null
-            while ((strLine = br.readLine()) != null) {
-                notificationsTest.add(convertStringToNotification(strLine));
-            }
-            dis.close();
-            //mInputTxt.setText(data);
-            Toast.makeText(this, "Read File OK!", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    protected void readFromFile() {
+//        try {
+//            FileInputStream fis = new FileInputStream(mTargetFile);
+//            DataInputStream dis = new DataInputStream(fis);
+//            BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+//            String strLine;
+//            //Assign the lines from buffer reader to strline and check if it is null
+//            while ((strLine = br.readLine()) != null) {
+//                notificationsTest.add(convertStringToNotification(strLine));
+//            }
+//            dis.close();
+//            //mInputTxt.setText(data);
+//            Toast.makeText(this, "Read File OK!", Toast.LENGTH_SHORT).show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    protected ArrayList<String> getNotificationString() {
-        //initialize some notification data for testing purpose
-        notifications.add(new NotificationModel("Title1", "Body1", "Time1"));
-        notifications.add(new NotificationModel("Title2", "Body2", "Time2"));
-        notifications.add(new NotificationModel("Title3", "Body3", "Time3"));
-        notifications.add(new NotificationModel("Title4", "Body4", "Time4"));
-        notifications.add(new NotificationModel("Title5", "Body5", "Time5"));
-        notifications.add(new NotificationModel("Title6", "Body6", "Time6"));
-        notifications.add(new NotificationModel("Title7", "Body7", "Time7"));
-        notifications.add(new NotificationModel("Title8", "Body8", "Time8"));
-
-        ArrayList<String> notificationStrings = new ArrayList<String>();
-
-        for (NotificationModel notification : notifications) {
-            String notiString = notification.getTitle() + "|" + notification.getMessage() + "|" + notification.getTime();
-            notificationStrings.add(notiString);
-        }
-        return notificationStrings;
-    }
+//    protected ArrayList<String> getNotificationString() {
+//        //initialize some notification data for testing purpose
+//        notifications.add(new NotificationModel("Title1", "Body1", "Time1"));
+//        notifications.add(new NotificationModel("Title2", "Body2", "Time2"));
+//        notifications.add(new NotificationModel("Title3", "Body3", "Time3"));
+//        notifications.add(new NotificationModel("Title4", "Body4", "Time4"));
+//        notifications.add(new NotificationModel("Title5", "Body5", "Time5"));
+//        notifications.add(new NotificationModel("Title6", "Body6", "Time6"));
+//        notifications.add(new NotificationModel("Title7", "Body7", "Time7"));
+//        notifications.add(new NotificationModel("Title8", "Body8", "Time8"));
+//
+//        ArrayList<String> notificationStrings = new ArrayList<String>();
+//
+//        for (NotificationModel notification : notifications) {
+//            String notiString = notification.getTitle() + "|" + notification.getMessage() + "|" + notification.getTime();
+//            notificationStrings.add(notiString);
+//        }
+//        return notificationStrings;
+//    }
 
     private NotificationModel convertStringToNotification(String notiString) {
         NotificationModel notification = new NotificationModel();
@@ -464,46 +469,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        });
 //    }
 
-//    public void getXDayForecast(String stationId){
-//        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-//        Call<Object> callApi = apiInterface.getXDayForecast(5,stationId);
-//        callApi.enqueue(new Callback<Object>() {
-//            @Override
-//            public void onResponse(Call<Object> call, Response<Object> response) {
-//                Object obj = response.body();
-//                JSONArray jsonArray;
-//                JSONObject jsonObject;
-////                Dictionary<String,Map<String,Double>> dayForecastDict = new Hashtable<>();
-////                Map<String,Double> minMaxWbgt = new HashMap<>();
-////                List<String> day = new ArrayList<String>();
-////                try {
-////                    jsonArray = new JSONArray(obj.toString());
-////
-////                    while(jsonArray.length() > 0){
-////                        for(int i=0; i<jsonArray.length(); i++){
-////                            jsonObject = new JSONObject(jsonArray.get(i).toString());
-////                            minMaxWbgt.put("low",jsonObject.getDouble("min_wbgt"));
-////                            minMaxWbgt.put("high",jsonObject.getDouble("max_wbgt"));
-////                            dayForecastDict.put("today",minMaxWbgt);
-////                            minMaxWbgt.clear();
-////                        }
-////                    }
-////                    System.out.println("HEllo");
-////                    Log.i("data", dayForecastDict.toString());
-////                } catch (JSONException e) {
-////                    jsonArray = null;
-////                }
-//
-////                createNotificationChannel();
-////                createNotification(35);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Object> call, Throwable t) {
-//                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
+    private void checkNotificationPermission(){
+        if(checkSelfPermission(notificationPermission[0])==PackageManager.PERMISSION_GRANTED){
+            Log.d("notification permit", "granted");
+        }else {
+            requestPermission();
+        }
+    }
+
+    private void requestPermission(){
+        String[] permission = {Manifest.permission.POST_NOTIFICATIONS};
+        ActivityCompat.requestPermissions(this, permission, 1);
+    }
+
+
+    // get user current location
+    public void getCurrentLocation() {
 
 //    public void getXHourForecast(String stationId){
 //        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
@@ -529,11 +510,135 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //            }
 //
 //            @Override
-//            public void onFailure(Call<Object> call, Throwable t) {
-//                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
+//            public void onComplete(@NonNull Task<Location> task) {
+//                if (task.isSuccessful()) {
+//                    lastKnownLocation = task.getResult();
+//                    if (lastKnownLocation != null) {
+//                        calculateDistance(lastKnownLocation);
+//                    }
+//                }
 //            }
 //        });
-//    }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQCODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+//                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//                locationResult = fusedLocationClient.getLastLocation();
+                getCurrentLocation();
+            }
+        }
+    }
+
+    // calculate distance between user and stations
+    public void calculateDistance(Location location){
+        float[] results = new float[1];
+        HashMap<String,Float> dstWithStation = new HashMap<String, Float>();
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),banyanStation.getLatitude(),banyanStation.getLongitude(),results);
+        dstWithStation.put(banyanStation.getId(),results[0]);
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),westCoastStation.getLatitude(),westCoastStation.getLongitude(),results);
+        dstWithStation.put(westCoastStation.getId(),results[0]);
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),sentosaStation.getLatitude(),sentosaStation.getLongitude(),results);
+        dstWithStation.put(sentosaStation.getId(),results[0]);
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),clementiStation.getLatitude(),clementiStation.getLongitude(),results);
+        dstWithStation.put(clementiStation.getId(),results[0]);
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),eastCoastStation.getLatitude(),eastCoastStation.getLongitude(),results);
+        dstWithStation.put(eastCoastStation.getId(),results[0]);
+
+        Location.distanceBetween(location.getLatitude(),location.getLongitude(),kimChuanStation.getLatitude(),kimChuanStation.getLongitude(),results);
+        dstWithStation.put(kimChuanStation.getId(),results[0]);
+        Comparator<Map.Entry<String,Float>> valueComparator = new Comparator<Map.Entry<String, Float>>() {
+            @Override
+            public int compare(Map.Entry<String, Float> t1, Map.Entry<String, Float> t2) {
+                return t1.getValue().compareTo(t2.getValue());
+            }
+        };
+
+        Set<Map.Entry<String, Float>> stationDistanceSet = dstWithStation.entrySet();
+        List<Map.Entry<String, Float>> stationDistanceList = new ArrayList<>(stationDistanceSet);
+
+        // get nearest station
+        Collections.sort(stationDistanceList,valueComparator);
+        String nearestStation = stationDistanceList.get(0).getKey();
+        Log.i("NEAREST STATION",nearestStation);
+
+        getCurrentWBGTData(nearestStation);
+        getXDayForecast(nearestStation);
+        getXHourForecast(nearestStation);
+    }
+
+    // get current wbgt value of nearest station by calling api
+    public void getCurrentWBGTData(String stationId){
+        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+        Call<Object> callApi = apiInterface.getCurrentWBGT(stationId);
+        callApi.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Object obj = response.body();
+                Log.i("Current WBGT",obj.toString());
+//                createNotificationChannel();
+//                createNotification(35);
+                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
+                startService(intent);
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void getXDayForecast(String stationId){
+        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+        Call<Object> callApi = apiInterface.getXDayForecast(5,stationId);
+        callApi.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Object obj = response.body();
+                Log.i("XDayForecast",obj.toString());
+//                createNotificationChannel();
+//                createNotification(35);
+                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
+                startService(intent);
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void getXHourForecast(String stationId){
+        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+        Call<Object> callApi = apiInterface.getXHourForecast(12,stationId);
+        callApi.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Object obj = response.body();
+                Log.i("XHourForecast",obj.toString());
+//                createNotificationChannel();
+//                createNotification(35);
+                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
+                startService(intent);
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void makeFragmentTransaction(Fragment fragment){
         //Fragment mainFragment = new MainFragment();

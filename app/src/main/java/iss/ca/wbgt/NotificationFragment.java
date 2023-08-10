@@ -11,6 +11,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,12 +47,15 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
     private String mParam2;
 
     //Notification Data
-    private ArrayList<NotificationModel> notifications;
-    private BroadcastReceiver receiver;
-    private static final String NEW_NOTIFICATION_ACTION="new_notification_action";
+    private ListViewAdapter adapter;
+
     File mTargetFile;
+    String folder = "Notifications";
+    String fileName = "notification_list";
     private ArrayList<NotificationModel> notificationList = new ArrayList<NotificationModel>();
     private ArrayList<NotificationModel> notificationsTest = new ArrayList<NotificationModel>();
+
+    //broadcast receiver
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -87,33 +93,26 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_notification, container, false);
-        getNotificationList();
-        ListViewAdapter adapter = new ListViewAdapter(getActivity(), notifications);
+        //getNotificationList();
+        mTargetFile = new File(requireContext().getFilesDir(), folder+"/"+fileName);
+        readFromFile();
+        //Collections.reverse(notificationList);
+        if(notificationsTest != null){
+            notificationList = notificationsTest;
+            Collections.reverse(notificationList);
+            adapter = new ListViewAdapter(getActivity(),notificationList);
+        }
+
         ListView listView = rootView.findViewById(R.id.notification_list);
         if(listView!=null){
             listView.setAdapter(adapter);
             listView.setOnItemClickListener(this);
         }
 
-        //receive broadcast
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if(intent.getAction().equals(NEW_NOTIFICATION_ACTION)){
-                    NotificationModel newNotification = (NotificationModel) intent.getParcelableExtra("notification");
-                    notificationList.add(newNotification);
-                    //adapter.notifyDataSetChanged();
-                }
-            }
-        };
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter(NEW_NOTIFICATION_ACTION));
+
         //store and retrieve notification data
         //store notifications to file
-        String folder = "NotificationsTest";
-        String fileName = "notification_list";
-        mTargetFile = new File(requireContext().getFilesDir(), folder+"/"+fileName);
-        writeToFile();
-        readFromFile();
+        //writeToFile();
 
 //        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.notification_list);
 //        NotificationListAdapter adapter = new NotificationListAdapter(notifications);
@@ -125,21 +124,23 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
     }
 
     @Override
+    public void onDestroy(){
+        writeToFile();
+        super.onDestroy();
+    }
+
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Toast.makeText(getContext(), "some"+position, Toast.LENGTH_SHORT).show();
     }
 
-    private void getNotificationList(){
-        notifications = new ArrayList<NotificationModel>();
-        notifications.add(new NotificationModel("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
-        notifications.add(new NotificationModel("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
-        notifications.add(new NotificationModel("Title", "This is notification message body", "Aug 2 2023 10:10pm"));
-    }
 
     //Notification
     protected void readFromFile(){
         try{
             FileInputStream fis = new FileInputStream(mTargetFile);
+            Log.d("targetFile", mTargetFile.getAbsolutePath());
             DataInputStream dis = new DataInputStream(fis);
             BufferedReader br = new BufferedReader(new InputStreamReader(dis));
             String strLine;
@@ -174,22 +175,10 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
     }
 
     protected ArrayList<String> getNotificationString(){
-        //initialize some notification data for testing purpose
-        notificationList.add(new NotificationModel("Title1", "Body1", "Time1"));
-        notificationList.add(new NotificationModel("Title2", "Body2", "Time2"));
-        notificationList.add(new NotificationModel("Title3", "Body3", "Time3"));
-        notificationList.add(new NotificationModel("Title4", "Body4", "Time4"));
-        notificationList.add(new NotificationModel("Title5", "Body5", "Time5"));
-        notificationList.add(new NotificationModel("Title6", "Body6", "Time6"));
-        notificationList.add(new NotificationModel("Title7", "Body7", "Time7"));
-        notificationList.add(new NotificationModel("Title8", "Body8", "Time8"));
-        notificationList.add(new NotificationModel("Title6", "Body6", "Time6"));
-        notificationList.add(new NotificationModel("Title7", "Body7", "Time7"));
-        notificationList.add(new NotificationModel("Title8", "Body8", "Time8"));
-
         ArrayList<String> notificationStrings = new ArrayList<String>();
 
-        for(NotificationModel notification: notificationList){
+        Collections.reverse(notificationsTest);
+        for(NotificationModel notification: notificationsTest){
             String notiString = notification.getTitle()+"|"+notification.getMessage()+"|"+notification.getTime();
             notificationStrings.add(notiString);
         }

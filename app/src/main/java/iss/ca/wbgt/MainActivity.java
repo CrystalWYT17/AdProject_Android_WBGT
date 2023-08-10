@@ -44,6 +44,10 @@ import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -54,20 +58,33 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Station banyanStation = new Station("S117", "Ban Yan", 103.679, 1.256);
-    private Station westCoastStation = new Station("S116", "West Coast", 103.754, 1.281);
-    private Station clementiStation = new Station("S50", "Clementi", 103.7768, 1.3337);
-    private Station sentosaStation = new Station("S60", "Sentosa", 103.8279, 1.25);
-    private Station eastCoastStation = new Station("S107","East Coast Parkway",103.9625,1.3135);
-    private Station kimChuanStation = new Station("S43","Kim Chuan Street",103.8878,1.3399);
+//    private Station banyanStation = new Station("S117", "Ban Yan", 103.679, 1.256);
+//    private Station westCoastStation = new Station("S116", "West Coast", 103.754, 1.281);
+//    private Station clementiStation = new Station("S50", "Clementi", 103.7768, 1.3337);
+//    private Station sentosaStation = new Station("S60", "Sentosa", 103.8279, 1.25);
+//    private Station eastCoastStation = new Station("S107","East Coast Parkway",103.9625,1.3135);
+//    private Station kimChuanStation = new Station("S43","Kim Chuan Street",103.8878,1.3399);
+//    private Station scottsRoadStation = new Station("S111","Scotts Road",103.8365,1.31055);
+//    private Station tuasSouthStation = new Station("S115","Tuas South Avenue 3",103.61843,1.29377);
+//    private Station angMoKioStation = new Station("S109","Ang Mo Kio Avenue 5",103.8492,1.3764);
+//    private Station choaChuKangStation = new Station("S121","Choa Chu Kang Road",103.72244,1.37288);
+//    private Station woolandStation = new Station("S104","Woodlands Avenue 9",103.78538,1.44387);
+//    private Station changiStation = new Station("S24","Upper Changi Road North",103.9826,1.3678);
+//    private Station nanyangStation = new Station("S44","Nanyang Avenue",103.68166,1.34583);
+//    private
     private Location lastKnownLocation;
     private Task<Location> locationResult;
     private FusedLocationProviderClient fusedLocationClient;
@@ -102,10 +119,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isGPSEnabled;
     private boolean isNetworkEnabled;
 
+    private List<Station> stationData = new ArrayList<>();
+    private UserCurrentData userCurrentData;
+    private Map<String,List<String>> dayForecast = new HashMap<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // add station data
+//        stationData.add(new Station("S117", "Ban Yan", 103.679, 1.256));
+//        stationData.add(new Station("S116", "West Coast", 103.754, 1.281));
+//        stationData.add(new Station("S50", "Clementi", 103.7768, 1.3337));
+//        stationData.add(new Station("S60", "Sentosa", 103.8279, 1.25));
+//        stationData.add(new Station("S107","East Coast Parkway",103.9625,1.3135));
+//        stationData.add(new Station("S43","Kim Chuan Street",103.8878,1.3399));
+//        stationData.add(new Station("S111","Scotts Road",103.8365,1.31055));
+//        stationData.add(new Station("S115","Tuas South Avenue 3",103.61843,1.29377));
+//        stationData.add(new Station("S109","Ang Mo Kio Avenue 5",103.8492,1.3764));
+//        stationData.add(new Station("S121","Choa Chu Kang Road",103.72244,1.37288));
+//        stationData.add(new Station("S104","Woodlands Avenue 9",103.78538,1.44387));
+//        stationData.add(new Station("S24","Upper Changi Road North",103.9826,1.3678));
+//        stationData.add(new Station("S44","Nanyang Avenue",103.68166,1.34583));
+
+        Intent intent = getIntent();
+        String stationName = intent.getStringExtra("stationName");
+        String wbgt = intent.getStringExtra("wbgt");
+
+        // store current data in object
+        userCurrentData = new UserCurrentData(stationName,wbgt);
+
+        stationData = (List<Station>) intent.getSerializableExtra("stationList");
+        dayForecast = (Map<String, List<String>>) intent.getSerializableExtra("dayForecast");
 
         //notification icon
 
@@ -157,19 +204,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
+//        checkPermission();
+
         //getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MainFragment()).commit();
-        Fragment mainFragment = new MainFragment();
+        MainFragment mainFragment = new MainFragment();
+        mainFragment.setStationName(stationName);
+        mainFragment.setWbgtValue(wbgt);
+        mainFragment.setDayForecast(dayForecast);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, mainFragment);
         transaction.addToBackStack(null);
         transaction.commit();
 
-
     }
 
     @Override
     protected void onStart() {
-        checkPermission();
         super.onStart();
     }
 
@@ -302,177 +352,188 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     // location permission
-    private void checkPermission() {
-        if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED) {
-//            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-//            locationResult = fusedLocationClient.getLastLocation();
-            getCurrentLocation();
-
-        } else {
-            ActivityCompat.requestPermissions(this, locationPermission, LOCATION_PERMISSION_REQCODE);
-        }
-    }
-
-    // get user current location
-    public void getCurrentLocation() {
-
-        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        if (isGPSEnabled && isNetworkEnabled) {
-            if (locationManager != null) {
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if(location != null){
-                    calculateDistance(location);
-                    Log.i("currentlocation","lat:"+location.getLatitude()+" long: "+location.getLongitude());
-                }
-                else{
-                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if(location != null){
-                        calculateDistance(location);
-                        Log.i("CURRENT","lat: "+location.getLatitude()+" long: "+location.getLongitude());
-                    }
-                }
-            }
-        }
-        else{
-            Toast.makeText(getApplicationContext(), "Make sure you have GPS or Network service available.", Toast.LENGTH_SHORT).show();
-        }
-
-//        locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Location> task) {
-//                if (task.isSuccessful()) {
-//                    lastKnownLocation = task.getResult();
-//                    if (lastKnownLocation != null) {
-//                        calculateDistance(lastKnownLocation);
+//    private void checkPermission() {
+//        if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED) {
+//            getCurrentLocation();
+//
+//        } else {
+//            ActivityCompat.requestPermissions(this, locationPermission, LOCATION_PERMISSION_REQCODE);
+//        }
+//    }
+//
+//    // get user current location
+//    public void getCurrentLocation() {
+//
+//        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+//        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+//        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//        if (isGPSEnabled && isNetworkEnabled) {
+//            if (locationManager != null) {
+//                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                    return;
+//                }
+//                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//                if(location != null){
+//                    calculateDistance(location);
+////                    Log.i("currentlocation","lat:"+location.getLatitude()+" long: "+location.getLongitude());
+//                }
+//                else{
+//                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//                    if(location != null){
+//                        calculateDistance(location);
+//                        Log.i("CURRENT","lat: "+location.getLatitude()+" long: "+location.getLongitude());
 //                    }
 //                }
 //            }
+//        }
+//        else{
+//            Toast.makeText(getApplicationContext(), "Make sure you have GPS or Network service available.", Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == LOCATION_PERMISSION_REQCODE) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+//                getCurrentLocation();
+//            }
+//        }
+//    }
+//
+//    // calculate distance between user and stations
+//    public void calculateDistance(Location location){
+//        float[] results = new float[1];
+//        HashMap<String,Float> dstWithStation = new HashMap<String, Float>();
+//        for(Station s: stationData){
+//            Location.distanceBetween(location.getLatitude(),location.getLongitude(),s.getLatitude(),s.getLongitude(),results);
+//            dstWithStation.put(s.getId(),results[0]);
+//        }
+//
+//        Comparator<Map.Entry<String,Float>> valueComparator = new Comparator<Map.Entry<String, Float>>() {
+//            @Override
+//            public int compare(Map.Entry<String, Float> t1, Map.Entry<String, Float> t2) {
+//                return t1.getValue().compareTo(t2.getValue());
+//            }
+//        };
+//
+//        Set<Map.Entry<String, Float>> stationDistanceSet = dstWithStation.entrySet();
+//        List<Map.Entry<String, Float>> stationDistanceList = new ArrayList<>(stationDistanceSet);
+//
+//        // get nearest station
+//        Collections.sort(stationDistanceList,valueComparator);
+//        String nearestStation = stationDistanceList.get(0).getKey();
+//        Log.i("NEAREST STATION",nearestStation);
+//
+//        getCurrentWBGTData(nearestStation);
+////        getXDayForecast(nearestStation);
+////        getXHourForecast(nearestStation);
+//    }
+//
+//    // get current wbgt value of nearest station by calling api
+//    public void getCurrentWBGTData(String stationId){
+//        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+//        Call<Object> callApi = apiInterface.getCurrentWBGT(stationId);
+//        callApi.enqueue(new Callback<Object>() {
+//            @Override
+//            public void onResponse(Call<Object> call, Response<Object> response) {
+//                Object obj = response.body();
+//                JSONArray jsonArray;
+//                try {
+//                    jsonArray = new JSONArray(obj.toString());
+//                    JSONObject jsonObject = new JSONObject(jsonArray.get(0).toString());
+//                    Optional<String> station= stationData.stream().filter(s -> s.getId() == stationId).map(Station::getName).findFirst();
+//                    currentWbgtValue = jsonObject.get("WBGT").toString();
+//                    currentStationName = station.get();
+//                    Log.i("Current WBGT", jsonObject.toString());
+//
+//                } catch (JSONException e) {
+//                    Log.e("Error",e.getMessage());
+//                    jsonArray = null;
+//                }
+//
+////                createNotificationChannel();
+////                createNotification(35);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Object> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
+//            }
 //        });
-    }
+//    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQCODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+//    public void getXDayForecast(String stationId){
+//        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+//        Call<Object> callApi = apiInterface.getXDayForecast(5,stationId);
+//        callApi.enqueue(new Callback<Object>() {
+//            @Override
+//            public void onResponse(Call<Object> call, Response<Object> response) {
+//                Object obj = response.body();
+//                JSONArray jsonArray;
+//                JSONObject jsonObject;
+////                Dictionary<String,Map<String,Double>> dayForecastDict = new Hashtable<>();
+////                Map<String,Double> minMaxWbgt = new HashMap<>();
+////                List<String> day = new ArrayList<String>();
+////                try {
+////                    jsonArray = new JSONArray(obj.toString());
+////
+////                    while(jsonArray.length() > 0){
+////                        for(int i=0; i<jsonArray.length(); i++){
+////                            jsonObject = new JSONObject(jsonArray.get(i).toString());
+////                            minMaxWbgt.put("low",jsonObject.getDouble("min_wbgt"));
+////                            minMaxWbgt.put("high",jsonObject.getDouble("max_wbgt"));
+////                            dayForecastDict.put("today",minMaxWbgt);
+////                            minMaxWbgt.clear();
+////                        }
+////                    }
+////                    System.out.println("HEllo");
+////                    Log.i("data", dayForecastDict.toString());
+////                } catch (JSONException e) {
+////                    jsonArray = null;
+////                }
+//
+////                createNotificationChannel();
+////                createNotification(35);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Object> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
-//                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-//                locationResult = fusedLocationClient.getLastLocation();
-                getCurrentLocation();
-            }
-        }
-    }
-
-    // calculate distance between user and stations
-    public void calculateDistance(Location location){
-        float[] results = new float[1];
-        HashMap<String,Float> dstWithStation = new HashMap<String, Float>();
-
-        Location.distanceBetween(location.getLatitude(),location.getLongitude(),banyanStation.getLatitude(),banyanStation.getLongitude(),results);
-        dstWithStation.put(banyanStation.getId(),results[0]);
-
-        Location.distanceBetween(location.getLatitude(),location.getLongitude(),westCoastStation.getLatitude(),westCoastStation.getLongitude(),results);
-        dstWithStation.put(westCoastStation.getId(),results[0]);
-
-        Location.distanceBetween(location.getLatitude(),location.getLongitude(),sentosaStation.getLatitude(),sentosaStation.getLongitude(),results);
-        dstWithStation.put(sentosaStation.getId(),results[0]);
-
-        Location.distanceBetween(location.getLatitude(),location.getLongitude(),clementiStation.getLatitude(),clementiStation.getLongitude(),results);
-        dstWithStation.put(clementiStation.getId(),results[0]);
-
-        Location.distanceBetween(location.getLatitude(),location.getLongitude(),eastCoastStation.getLatitude(),eastCoastStation.getLongitude(),results);
-        dstWithStation.put(eastCoastStation.getId(),results[0]);
-
-        Location.distanceBetween(location.getLatitude(),location.getLongitude(),kimChuanStation.getLatitude(),kimChuanStation.getLongitude(),results);
-        dstWithStation.put(kimChuanStation.getId(),results[0]);
-        Comparator<Map.Entry<String,Float>> valueComparator = new Comparator<Map.Entry<String, Float>>() {
-            @Override
-            public int compare(Map.Entry<String, Float> t1, Map.Entry<String, Float> t2) {
-                return t1.getValue().compareTo(t2.getValue());
-            }
-        };
-
-        Set<Map.Entry<String, Float>> stationDistanceSet = dstWithStation.entrySet();
-        List<Map.Entry<String, Float>> stationDistanceList = new ArrayList<>(stationDistanceSet);
-
-        // get nearest station
-        Collections.sort(stationDistanceList,valueComparator);
-        String nearestStation = stationDistanceList.get(0).getKey();
-        Log.i("NEAREST STATION",nearestStation);
-
-        getCurrentWBGTData(nearestStation);
-        getXDayForecast(nearestStation);
-        getXHourForecast(nearestStation);
-    }
-
-    // get current wbgt value of nearest station by calling api
-    public void getCurrentWBGTData(String stationId){
-        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-        Call<Object> callApi = apiInterface.getCurrentWBGT(stationId);
-        callApi.enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                Object obj = response.body();
-                Log.i("Current WBGT",obj.toString());
-//                createNotificationChannel();
-//                createNotification(35);
-                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
-                startService(intent);
-            }
-
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public void getXDayForecast(String stationId){
-        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-        Call<Object> callApi = apiInterface.getXDayForecast(5,stationId);
-        callApi.enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                Object obj = response.body();
-                Log.i("XDayForecast",obj.toString());
-//                createNotificationChannel();
-//                createNotification(35);
-                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
-                startService(intent);
-            }
-
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public void getXHourForecast(String stationId){
-        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-        Call<Object> callApi = apiInterface.getXHourForecast(12,stationId);
-        callApi.enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                Object obj = response.body();
-                Log.i("XHourForecast",obj.toString());
-//                createNotificationChannel();
-//                createNotification(35);
-                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
-                startService(intent);
-            }
-
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later."+t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+//    public void getXHourForecast(String stationId){
+//        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+//        Call<Object> callApi = apiInterface.getXHourForecast(12,stationId);
+//        callApi.enqueue(new Callback<Object>() {
+//            @Override
+//            public void onResponse(Call<Object> call, Response<Object> response) {
+//                Object obj = response.body();
+//                JSONArray jsonArray;
+//                JSONObject jsonObject;
+//                try {
+//                    jsonArray = new JSONArray(obj.toString());
+//                    jsonObject = new JSONObject(jsonArray.get(0).toString());
+//                    Log.i("json",jsonObject.toString());
+//                } catch (JSONException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                Log.i("XHourForecast",obj.toString());
+////                createNotificationChannel();
+////                createNotification(35);
+//                Intent intent = new Intent(MainActivity.this, FirebaseNotificationReceiver.class);
+//                startService(intent);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Object> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     private void makeFragmentTransaction(Fragment fragment){
         //Fragment mainFragment = new MainFragment();

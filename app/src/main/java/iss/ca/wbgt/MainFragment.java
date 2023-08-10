@@ -1,8 +1,11 @@
 package iss.ca.wbgt;
 
+import android.Manifest;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -220,4 +223,6 @@ public class MainFragment extends Fragment {
 //        forecastDayList.add(new ForecastDay("Fri", "35", "25"));
 //        forecastDayList.add(new ForecastDay("Sat", "35", "25"));
     }
+
+
 }

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -41,6 +42,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
     private MapView mMapView;
     //linechart
     private LineChart lineChart;
+    private ProgressBar loadingBar;
     private ArrayList<Entry> lineEntries = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
@@ -91,6 +93,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         View rootView = inflater.inflate(R.layout.fragment_station, container, false);
         Spinner spinner = (Spinner) rootView.findViewById(R.id.dropdown);
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
+        loadingBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
 //        getEntries();
 //        MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
 //        newLineChart.drawLineChart();
@@ -115,6 +118,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        loadingBar.setVisibility(View.VISIBLE);
         ApiService service = new ApiService();
 
         CompletableFuture<Map<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
@@ -128,6 +132,8 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
             getActivity().runOnUiThread(() -> {
                 MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+                loadingBar.setVisibility(View.GONE);
+                lineChart.setVisibility(View.VISIBLE);
                 newLineChart.drawLineChart();
             });
         });

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,6 +68,7 @@ public class MainFragment extends Fragment {
     private String mParam2;
     private String stationName;
     private String wbgtValue;
+    private String stationId;
 
     private Map<String,List<String>> dayForecast = new HashMap<>();
     private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
@@ -87,9 +89,14 @@ public class MainFragment extends Fragment {
         this.stationName = stationName;
     }
 
+    public void setStationId(String stationId){
+        this.stationId = stationId;
+    }
+
     public void setWbgtValue(String wbgtValue) {
         this.wbgtValue = wbgtValue;
     }
+
 
     /**
      * Use this factory method to create a new instance of
@@ -125,14 +132,37 @@ public class MainFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
 
+        //linechart
+        lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
+        getEntries();
+        myLineChart = new MyLineChart(lineChart, lineEntries);
+        myLineChart.drawLineChart();
+
         //refresh
         SwipeRefreshLayout refreshLayout = rootView.findViewById(R.id.refreshLayout);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                final String currentStationId = stationId;
                 //make api call and refresh data
-                System.out.println("done refreshing");
-                refreshLayout.setRefreshing(false);
+                ApiService service = new ApiService();
+
+                CompletableFuture<Map<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
+                    return service.getXHourForecastMultiStation(currentStationId);
+                });
+
+                chartData.thenAccept(forecastData -> {
+                    xHoursForecast = forecastData;
+                    lineEntries.clear();
+                    getEntries();
+
+                    getActivity().runOnUiThread(() -> {
+                        MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+                        System.out.println("done refreshing");
+                        refreshLayout.setRefreshing(false);
+                        newLineChart.drawLineChart();
+                    });
+                });
             }
         });
 
@@ -142,11 +172,6 @@ public class MainFragment extends Fragment {
         txtStationName.setText(stationName);
         txtWbgtValue.setText(String.valueOf(wbgtValue));
 
-        //linechart
-        lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
-        getEntries();
-        myLineChart = new MyLineChart(lineChart, lineEntries);
-        myLineChart.drawLineChart();
 
         //recyclerView
         recyclerView = (RecyclerView) rootView.findViewById(R.id.xDaysForecast);
@@ -165,31 +190,6 @@ public class MainFragment extends Fragment {
     }
 
     private void getEntries(){
-//        lineEntries.add(new Entry(0f, 5f));
-//        lineEntries.add(new Entry(1f, 8f));
-//        lineEntries.add(new Entry(2f, 6f));
-//        lineEntries.add(new Entry(3f, 8f));
-//        lineEntries.add(new Entry(4f, 6f));
-//        lineEntries.add(new Entry(5f, 4f));
-//        lineEntries.add(new Entry(6f, 5f));
-//        lineEntries.add(new Entry(7f, 4f));
-//        lineEntries.add(new Entry(8f, 6f));
-//        lineEntries.add(new Entry(9f, 7f));
-//        lineEntries.add(new Entry(10f, 10f));
-//        lineEntries.add(new Entry(11f, 12f));
-//        lineEntries.add(new Entry(12f, 10f));
-//        lineEntries.add(new Entry(13f, 4f));
-//        lineEntries.add(new Entry(14f, 10f));
-//        lineEntries.add(new Entry(15f, 8f));
-//        lineEntries.add(new Entry(16f, 5f));
-//        lineEntries.add(new Entry(17f, 4f));
-//        lineEntries.add(new Entry(18f, 3f));
-//        lineEntries.add(new Entry(19f, 4f));
-//        lineEntries.add(new Entry(20f, 6f));
-//        lineEntries.add(new Entry(21f, 8f));
-//        lineEntries.add(new Entry(22f, 6f));
-//        lineEntries.add(new Entry(23f, 4f));
-
         Map<Integer, Double> entries = new HashMap<>();
         xHoursForecast.forEach((key, value)->{
             Double average = value.stream()

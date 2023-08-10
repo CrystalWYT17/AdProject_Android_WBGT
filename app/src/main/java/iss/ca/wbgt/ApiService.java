@@ -117,6 +117,7 @@ public class ApiService extends AppCompatActivity {
                             currentStationName = station.get();
                             currentData.setWbgtValue(currentWbgtValue);
                             currentData.setStationName(currentStationName);
+                            currentData.setStationId(stationId);
                             Log.i("Current WBGT", jsonObject.toString());
 
                         } catch (JSONException e) {

@@ -200,6 +200,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         String nearestStation = stationDistanceList.get(0).getKey();
         Log.i("NEAREST STATION",nearestStation);
 
+
         apiService.getCurrentWBGTData(nearestStation);
         apiService.getXDayForecast(nearestStation);
         apiService.getXHourForecast(nearestStation);
@@ -214,6 +215,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 xHoursForecast = apiService.getxHoursForecast();
                 Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                 intent.putExtra("stationName",currentData.getStationName());
+                intent.putExtra("stationId", currentData.getStationId());
                 intent.putExtra("wbgt",currentData.getWbgtValue());
                 intent.putExtra("dayForecast",(Serializable) dayForecast);
                 intent.putExtra("stationList",(Serializable) stationData);

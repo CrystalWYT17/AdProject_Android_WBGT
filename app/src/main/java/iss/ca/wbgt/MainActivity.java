@@ -121,10 +121,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Intent intent = getIntent();
         String stationName = intent.getStringExtra("stationName");
+        String stationId = intent.getStringExtra("stationId");
         String wbgt = intent.getStringExtra("wbgt");
 
         // store current data in object
-        userCurrentData = new UserCurrentData(stationName,wbgt);
+        userCurrentData = new UserCurrentData(stationId, stationName, wbgt);
 
         stationData = (List<Station>) intent.getSerializableExtra("stationList");
         dayForecast = (Map<String, List<String>>) intent.getSerializableExtra("dayForecast");
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = new MainFragment();
         mainFragment.setStationName(stationName);
         mainFragment.setWbgtValue(wbgt);
+        mainFragment.setStationId(stationId);
         mainFragment.setDayForecast(dayForecast);
         mainFragment.setXHoursForecast(xHoursForecast);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

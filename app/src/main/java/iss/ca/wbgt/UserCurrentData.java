@@ -4,12 +4,15 @@ public class UserCurrentData {
 
     private String stationName;
     private String wbgtValue;
+    //added by mthn
+    private String stationId;
 
     public UserCurrentData(){
 
     }
 
-    public UserCurrentData(String stationName, String wbgtValue){
+    public UserCurrentData(String stationId, String stationName, String wbgtValue){
+        this.stationId = stationId;
         this.stationName = stationName;
         this.wbgtValue = wbgtValue;
     }
@@ -17,6 +20,7 @@ public class UserCurrentData {
     public String getStationName() {
         return stationName;
     }
+    public String getStationId(){return stationId;}
 
     public String getWbgtValue() {
         return wbgtValue;
@@ -29,4 +33,5 @@ public class UserCurrentData {
     public void setWbgtValue(String wbgtValue) {
         this.wbgtValue = wbgtValue;
     }
+    public void setStationId(String stationId){this.stationId = stationId;}
 }

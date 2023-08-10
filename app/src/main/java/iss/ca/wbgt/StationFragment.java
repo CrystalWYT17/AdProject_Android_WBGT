@@ -201,6 +201,13 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         stationList.add(new Station("S60", "Sentosa", 103.8279, 1.25));
         stationList.add(new Station("S107","East Coast Parkway",103.9625,1.3135));
         stationList.add(new Station("S43","Kim Chuan Street",103.8878,1.3399));
+        stationList.add(new Station("S111","Scotts Road",103.8365,1.31055));
+        stationList.add(new Station("S115","Tuas South Avenue 3",103.61843,1.29377));
+        stationList.add(new Station("S109","Ang Mo Kio Avenue 5",103.8492,1.3764));
+        stationList.add(new Station("S121","Choa Chu Kang Road",103.72244,1.37288));
+        stationList.add(new Station("S104","Woodlands Avenue 9",103.78538,1.44387));
+        stationList.add(new Station("S24","Upper Changi Road North",103.9826,1.3678));
+        stationList.add(new Station("S44","Nanyang Avenue",103.68166,1.34583));
         return stationList;
     }
 

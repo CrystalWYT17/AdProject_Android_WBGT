@@ -68,9 +68,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging:23.2.1'
     implementation 'com.google.firebase:firebase-firestore:24.7.0'
-
-
     //swipe refresh layout
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    //splash screen
+    implementation 'androidx.core:core-splashscreen:1.0.0'
 
 }

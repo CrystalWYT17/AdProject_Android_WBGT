@@ -11,9 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -23,8 +25,15 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,9 +65,25 @@ public class MainFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private String stationName;
+    private String wbgtValue;
+
+    private Map<String,List<String>> dayForecast = new HashMap<>();
 
     public MainFragment() {
         // Required empty public constructor
+    }
+
+    public void setDayForecast(Map<String, List<String>> dayForecast) {
+        this.dayForecast = dayForecast;
+    }
+
+    public void setStationName(String stationName) {
+        this.stationName = stationName;
+    }
+
+    public void setWbgtValue(String wbgtValue) {
+        this.wbgtValue = wbgtValue;
     }
 
     /**
@@ -106,16 +131,17 @@ public class MainFragment extends Fragment {
             }
         });
 
-
-
+        // set station name and wbgt value
+        TextView txtStationName = rootView.findViewById(R.id.station);
+        TextView txtWbgtValue = rootView.findViewById(R.id.wbgt_value);
+        txtStationName.setText(stationName);
+        txtWbgtValue.setText(String.valueOf(wbgtValue));
 
         //linechart
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         getEntries();
         myLineChart = new MyLineChart(lineChart, lineEntries);
         myLineChart.drawLineChart();
-
-
 
         //recyclerView
         recyclerView = (RecyclerView) rootView.findViewById(R.id.xDaysForecast);
@@ -161,13 +187,41 @@ public class MainFragment extends Fragment {
     }
 
     private void getDataForXDaysForecast(){
-        forecastDayList.add(new ForecastDay("Today", "35", "25"));
-        forecastDayList.add(new ForecastDay("Mon", "35", "25"));
-        forecastDayList.add(new ForecastDay("Tue", "35", "25"));
-        forecastDayList.add(new ForecastDay("Wed", "35", "25"));
-        forecastDayList.add(new ForecastDay("Thu", "35", "25"));
-        forecastDayList.add(new ForecastDay("Fri", "35", "25"));
-        forecastDayList.add(new ForecastDay("Sat", "35", "25"));
+
+        DayOfWeek currentDay = LocalDate.now().getDayOfWeek();
+        List<String> dayNames = new ArrayList<>(Arrays.asList("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"));
+        int currentIndx = dayNames.indexOf(currentDay.getDisplayName(TextStyle.FULL, Locale.ENGLISH));
+
+        for(int i =0; i<dayNames.size() ; i++){
+            int index = (currentIndx + i) % dayNames.size();
+            String day = dayNames.get(index);
+            if(dayForecast.containsKey(day.toUpperCase())){
+                String dayName;
+                if(day.equalsIgnoreCase(String.valueOf(currentDay))){
+                    dayName = "Today";
+                }
+                else{
+                    dayName = dayNames.get(index);
+                }
+                List<String> minMaxWbgt = dayForecast.get(String.valueOf(currentDay));
+                Double minVal = Double.parseDouble(minMaxWbgt.get(0));
+                Double maxVal = Double.parseDouble(minMaxWbgt.get(1));
+                ForecastDay forecastDay = new ForecastDay(dayName, String.valueOf(Math.round(minVal)), String.valueOf(Math.round(maxVal)));
+                forecastDayList.add(forecastDay);
+
+            }
+        }
+
+//        for(Map.Entry<String, List<String>> dayF: dayForecast.entrySet()){
+//            Log.i("data","dayF: "+dayF.getKey()+"value: "+dayF.getValue());
+//        }
+//        forecastDayList.add(new ForecastDay("Today", "35", "25"));
+//        forecastDayList.add(new ForecastDay("Mon", "35", "25"));
+//        forecastDayList.add(new ForecastDay("Tue", "35", "25"));
+//        forecastDayList.add(new ForecastDay("Wed", "35", "25"));
+//        forecastDayList.add(new ForecastDay("Thu", "35", "25"));
+//        forecastDayList.add(new ForecastDay("Fri", "35", "25"));
+//        forecastDayList.add(new ForecastDay("Sat", "35", "25"));
     }
 
 

@@ -23,8 +23,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +37,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     private List<String> stationNameList;
     private List<Station> stationList;
+    private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
     private MapView mMapView;
     //linechart
     private LineChart lineChart;
@@ -88,9 +91,9 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         View rootView = inflater.inflate(R.layout.fragment_station, container, false);
         Spinner spinner = (Spinner) rootView.findViewById(R.id.dropdown);
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
-        getEntries();
-        MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
-        newLineChart.drawLineChart();
+//        getEntries();
+//        MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+//        newLineChart.drawLineChart();
 
         //initialize station data
         stationList = getStationList();
@@ -112,8 +115,24 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        //Toast.makeText(getContext(), stations[position], Toast.LENGTH_SHORT).show();
+        ApiService service = new ApiService();
+
+        CompletableFuture<Map<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
+            return service.getXHourForecastMultiStation(stationList.get(position).getId());
+        });
+
+        chartData.thenAccept(forecastData -> {
+            xHoursForecast = forecastData;
+            lineEntries.clear();
+            getEntries();
+
+            getActivity().runOnUiThread(() -> {
+                MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+                newLineChart.drawLineChart();
+            });
+        });
     }
+
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -168,30 +187,18 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
     }
 
     private void getEntries(){
-        lineEntries.add(new Entry(0f, 5f));
-        lineEntries.add(new Entry(1f, 8f));
-        lineEntries.add(new Entry(2f, 6f));
-        lineEntries.add(new Entry(3f, 8f));
-        lineEntries.add(new Entry(4f, 6f));
-        lineEntries.add(new Entry(5f, 4f));
-        lineEntries.add(new Entry(6f, 5f));
-        lineEntries.add(new Entry(7f, 4f));
-        lineEntries.add(new Entry(8f, 6f));
-        lineEntries.add(new Entry(9f, 7f));
-        lineEntries.add(new Entry(10f, 10f));
-        lineEntries.add(new Entry(11f, 12f));
-        lineEntries.add(new Entry(12f, 10f));
-        lineEntries.add(new Entry(13f, 4f));
-        lineEntries.add(new Entry(14f, 10f));
-        lineEntries.add(new Entry(15f, 8f));
-        lineEntries.add(new Entry(16f, 5f));
-        lineEntries.add(new Entry(17f, 4f));
-        lineEntries.add(new Entry(18f, 3f));
-        lineEntries.add(new Entry(19f, 4f));
-        lineEntries.add(new Entry(20f, 6f));
-        lineEntries.add(new Entry(21f, 8f));
-        lineEntries.add(new Entry(22f, 6f));
-        lineEntries.add(new Entry(23f, 4f));
+        Map<Integer, Double> entries = new HashMap<>();
+        xHoursForecast.forEach((key, value)->{
+            Double average = value.stream()
+                    .mapToDouble(Double::doubleValue)
+                    .average()
+                    .getAsDouble();
+            entries.put(key, average);
+        });
+        //add to lineEntries
+        entries.forEach((key, value)->{
+            lineEntries.add(new Entry(key, value.floatValue()));
+        });
     }
     private List<Station> getStationList(){
         List<Station> stationList = new ArrayList<>();

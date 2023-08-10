@@ -10,15 +10,21 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,6 +34,7 @@ public class ApiService extends AppCompatActivity {
     private String currentWbgtValue;
     private Map<String,List<String>> dayForecast = new HashMap<>();
     private List<Station> stationData = new ArrayList<>();
+    private Map<Integer,List<Double>> xHoursForecast = new HashMap<>();
     private UserCurrentData currentData = new UserCurrentData();
     public ApiService(){
 
@@ -35,6 +42,10 @@ public class ApiService extends AppCompatActivity {
 
     public UserCurrentData getCurrentData(){
         return this.currentData;
+    }
+
+    public Map<Integer, List<Double>> getxHoursForecast(){
+        return this.xHoursForecast;
     }
 
     public void setStationData(List<Station> stationData){
@@ -47,7 +58,7 @@ public class ApiService extends AppCompatActivity {
 
     public void getXHourForecast(String stationId){
         ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-        Call<Object> callApi = apiInterface.getXHourForecast(12,stationId);
+        Call<Object> callApi = apiInterface.getXHourForecast(24,stationId);
         callApi.enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
@@ -56,14 +67,26 @@ public class ApiService extends AppCompatActivity {
                 JSONObject jsonObject;
                 try {
                     jsonArray = new JSONArray(obj.toString());
-                    jsonObject = new JSONObject(jsonArray.get(0).toString());
-                    Log.i("json",jsonObject.toString());
+                    for(int i=0; i<jsonArray.length(); i++){
+                        jsonObject = new JSONObject(jsonArray.get(i).toString());
+                        String time = jsonObject.get("timestamp").toString();
+                        String predicted_wbgt = jsonObject.get("predicted_value").toString();
+                        double wbgt = Double.parseDouble(predicted_wbgt);
+                        int hour = getHour(time);
+                        if(xHoursForecast.containsKey(hour)){
+                            xHoursForecast.get(hour).add(wbgt);
+                        }else {
+                            List<Double> values = new ArrayList<>();
+                            values.add(wbgt);
+                            xHoursForecast.put(hour, values);
+                        }
+                    }
+
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
                 Log.i("XHourForecast",obj.toString());
-//                createNotificationChannel();
-//                createNotification(35);
+
             }
 
             @Override
@@ -216,4 +239,59 @@ public class ApiService extends AppCompatActivity {
         }
         return checkedDay;
     }
+
+    //get hour from datetime string
+    private int getHour(String datetimeString){
+        int hour = 0;
+        String pattern = "yyyy-MM-dd HH:mm:ss";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(datetimeString, formatter);
+            hour = dateTime.getHour();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return hour;
+    }
+
+    public Map<Integer, List<Double>> getXHourForecastMultiStation(String stationId) {
+        CompletableFuture<Map<Integer, List<Double>>> future = new CompletableFuture<>();
+
+        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+        Call<Object> callApi = apiInterface.getXHourForecast(24, stationId);
+
+        try {
+            Response<Object> response = callApi.execute();
+            if (response.isSuccessful()) {
+                Map<Integer, List<Double>> hourlyForecast = new HashMap<>();
+                Object obj = response.body();
+                JSONArray jsonArray = new JSONArray(obj.toString());
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
+                    String time = jsonObject.get("timestamp").toString();
+                    String predicted_wbgt = jsonObject.get("predicted_value").toString();
+                    double wbgt = Double.parseDouble(predicted_wbgt);
+                    int hour = getHour(time);
+                    if (hourlyForecast.containsKey(hour)) {
+                        hourlyForecast.get(hour).add(wbgt);
+                    } else {
+                        List<Double> values = new ArrayList<>();
+                        values.add(wbgt);
+                        hourlyForecast.put(hour, values);
+                    }
+                }
+                return hourlyForecast;
+            } else {
+                // Handle the failure scenario here
+            }
+        } catch (Exception e) {
+            // Handle exceptions here
+        }
+
+        // Return a default or empty map in case of failure or exceptions
+        return new HashMap<>();
+    }
+
+
 }

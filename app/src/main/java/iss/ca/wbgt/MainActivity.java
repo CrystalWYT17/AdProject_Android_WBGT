@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<Station> stationData = new ArrayList<>();
     private UserCurrentData userCurrentData;
     private Map<String,List<String>> dayForecast = new HashMap<>();
+    private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
 
 
     @Override
@@ -127,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         stationData = (List<Station>) intent.getSerializableExtra("stationList");
         dayForecast = (Map<String, List<String>>) intent.getSerializableExtra("dayForecast");
+        xHoursForecast = (Map<Integer, List<Double>>) intent.getSerializableExtra("xHoursForecast");
+
 
         //notification icon
 
@@ -192,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mainFragment.setStationName(stationName);
         mainFragment.setWbgtValue(wbgt);
         mainFragment.setDayForecast(dayForecast);
+        mainFragment.setXHoursForecast(xHoursForecast);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, mainFragment);
         transaction.addToBackStack(null);

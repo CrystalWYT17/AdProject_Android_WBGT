@@ -94,6 +94,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     private int LOCATION_PERMISSION_REQCODE = 1111;
     private Map<String,List<String>> dayForecast = new HashMap<>();
+    private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
     private ApiService apiService = new ApiService();
     private UserCurrentData currentData = new UserCurrentData();
 
@@ -201,6 +202,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         apiService.getCurrentWBGTData(nearestStation);
         apiService.getXDayForecast(nearestStation);
+        apiService.getXHourForecast(nearestStation);
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -209,11 +211,13 @@ public class SplashScreenActivity extends AppCompatActivity {
                 writeToSharedPreference();
                 currentData = apiService.getCurrentData();
                 dayForecast = apiService.getDayForecast();
+                xHoursForecast = apiService.getxHoursForecast();
                 Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
                 intent.putExtra("stationName",currentData.getStationName());
                 intent.putExtra("wbgt",currentData.getWbgtValue());
                 intent.putExtra("dayForecast",(Serializable) dayForecast);
                 intent.putExtra("stationList",(Serializable) stationData);
+                intent.putExtra("xHoursForecast",(Serializable) xHoursForecast);
                 startActivity(intent);
             }
         },10000);
@@ -226,7 +230,6 @@ public class SplashScreenActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = shr.edit();
         editor.putString("currentStationName",currentData.getStationName());
         editor.putString("currentWbgt",currentData.getWbgtValue());
-        editor.p
     }
 
     public String convertMapToString(Map<String,List<String>> dayForecast){

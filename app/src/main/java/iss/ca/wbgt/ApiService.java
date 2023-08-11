@@ -40,7 +40,6 @@ public class ApiService extends Service {
     private Map<String,List<String>> dayForecast = new HashMap<>();
     private List<Station> stationData = new ArrayList<>();
     private Map<Integer,List<Double>> xHoursForecast = new HashMap<>();
-    private UserCurrentData currentData = new UserCurrentData();
     public ApiService(){
 
     }
@@ -62,20 +61,8 @@ public class ApiService extends Service {
     }
 
 
-    public UserCurrentData getCurrentData(){
-        return this.currentData;
-    }
-
     public Map<Integer, List<Double>> getxHoursForecast(){
         return this.xHoursForecast;
-    }
-
-    public void setStationData(List<Station> stationData){
-        this.stationData = stationData;
-    }
-
-    public Map<String, List<String>> getDayForecast() {
-        return dayForecast;
     }
 
     public void getXHourForecast(String stationId){
@@ -137,8 +124,6 @@ public class ApiService extends Service {
                             Optional<String> station= stationData.stream().filter(s -> s.getId().equals(stationId)).map(Station::getName).findFirst();
                             currentWbgtValue = jsonObject.get("WBGT").toString();
                             currentStationName = station.get();
-                            currentData.setWbgtValue(currentWbgtValue);
-                            currentData.setStationName(currentStationName);
                             Log.i("Current WBGT", jsonObject.toString());
 
 
@@ -147,15 +132,10 @@ public class ApiService extends Service {
                             jsonArray = null;
                         }
 
-//                createNotificationChannel();
-//                createNotification(35);
-
                         Intent intent = new Intent();
                         intent.setAction("CurrentWbgtCompleted");
                         intent.putExtra("currentStationName",currentStationName);
                         intent.putExtra("currentWbgt",currentWbgtValue);
-//                    intent.putExtra("currentWbgt",currentWbgtValue);
-//                    intent.putExtra("currentStationName",currentStationName);
                         sendBroadcast(intent);
                     }
 
@@ -169,13 +149,6 @@ public class ApiService extends Service {
         });
         bkThread.run();
 
-
-        //        if(callApi.isExecuted()){
-//
-//        }
-//        UserCurrentData currentData = new UserCurrentData(currentStationName,currentWbgtValue);
-//        Log.i("currentData",currentData.toString());
-//        return currentData;
     }
 
     public void getXDayForecast(String stationId){
@@ -191,8 +164,6 @@ public class ApiService extends Service {
                         Object obj = response.body();
                         JSONArray jsonArray;
                         JSONObject jsonObject;
-//                Dictionary<String,Map<String,Double>> dayForecastDict = new Hashtable<>();
-
 
                         try {
                             jsonArray = new JSONArray(obj.toString());
@@ -204,8 +175,6 @@ public class ApiService extends Service {
                                     String day = checkDay(jsonObject.get("timestamp").toString());
                                     wbgtList.add(String.valueOf(jsonObject.getDouble("min_wbgt")));
                                     wbgtList.add(String.valueOf(jsonObject.getDouble("max_wbgt")));
-//                            minMaxWbgt.put("low",jsonObject.getDouble("min_wbgt"));
-//                            minMaxWbgt.put("high",jsonObject.getDouble("max_wbgt"));
                                     dayForecast.put(day,wbgtList);
                                 }
                             }
@@ -222,12 +191,8 @@ public class ApiService extends Service {
                         Intent intent = new Intent();
                         intent.setAction("DayForecastCompleted");
                         intent.putExtra("dayForecast",(Serializable) dayForecast);
-//                    intent.putExtra("currentWbgt",currentWbgtValue);
-//                    intent.putExtra("currentStationName",currentStationName);
                         sendBroadcast(intent);
 
-//                createNotificationChannel();
-//                createNotification(35);
                     }
 
                     @Override
@@ -239,8 +204,6 @@ public class ApiService extends Service {
             }
         });
         bkThread.run();
-
-
 
     }
 

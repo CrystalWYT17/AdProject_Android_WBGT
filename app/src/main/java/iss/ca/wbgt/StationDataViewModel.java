@@ -1,5 +1,8 @@
 package iss.ca.wbgt;
 
+import java.util.List;
+import java.util.Map;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -14,4 +17,5 @@ public class StationDataViewModel extends ViewModel {
     public void setUserCurrentData(UserCurrentData currentData){
         stateData.setValue(currentData);
     }
+
 }

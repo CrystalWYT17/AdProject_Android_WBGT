@@ -79,31 +79,15 @@ public class MainFragment extends Fragment {
 
     private Map<String,List<String>> dayForecast = new HashMap<>();
     private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
+    private LocationService locationService = new LocationService();
 
     public MainFragment() {
         // Required empty public constructor
     }
 
-    public void setDayForecast(Map<String, List<String>> dayForecast) {
-        this.dayForecast = dayForecast;
-    }
-
     public void setXHoursForecast(Map<Integer, List<Double>> hoursForecast){
         this.xHoursForecast = hoursForecast;
     }
-
-    public void setStationName(String stationName) {
-        this.stationName = stationName;
-    }
-
-    public void setStationId(String stationId){
-        this.stationId = stationId;
-    }
-
-    public void setWbgtValue(String wbgtValue) {
-        this.wbgtValue = wbgtValue;
-    }
-
 
     /**
      * Use this factory method to create a new instance of
@@ -153,15 +137,14 @@ public class MainFragment extends Fragment {
                 txtStationName.setText(s.getStationName());
                 txtWbgtValue.setText(s.getWbgtValue());
             }
-
-
         });
 
         SharedPreferences shr = getActivity().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
         String currentStationName = shr.getString("currentStationName","");
         String currentWbgt = shr.getString("currentWbgt","");
         String dayForecastString = shr.getString("dayForecast","");
-        String stationId = shr.getString("currentStationId", "S121");
+//        String stationId = shr.getString("currentStationId", "S121");
+        String stationId = locationService.getCurrentLocation(getContext());
 
         if(txtStationName.getText() == ""){
 
@@ -188,6 +171,9 @@ public class MainFragment extends Fragment {
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         progressBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
         lineChart.setVisibility(View.GONE);
+//        if(viewModel.getxHourForecastData() == null){
+//            Log.i("hour forecast","null");
+//        }
         ApiService service = new ApiService();
 
         CompletableFuture<Map<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
@@ -196,6 +182,7 @@ public class MainFragment extends Fragment {
 
         chartData.thenAccept(forecastData -> {
             xHoursForecast = forecastData;
+//            viewModel.setxHourForecastData(xHoursForecast);
             lineEntries.clear();
             getEntries();
 
@@ -287,7 +274,7 @@ public class MainFragment extends Fragment {
                 List<String> minMaxWbgt = dayForecast.get(String.valueOf(currentDay));
                 Double minVal = Double.parseDouble(minMaxWbgt.get(0));
                 Double maxVal = Double.parseDouble(minMaxWbgt.get(1));
-                ForecastDay forecastDay = new ForecastDay(dayName, String.valueOf(Math.round(minVal)), String.valueOf(Math.round(maxVal)));
+                ForecastDay forecastDay = new ForecastDay(dayName, String.valueOf(Math.round(maxVal)), String.valueOf(Math.round(minVal)));
                 forecastDayList.add(forecastDay);
 
             }

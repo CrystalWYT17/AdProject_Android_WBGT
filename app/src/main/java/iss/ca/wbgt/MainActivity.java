@@ -108,10 +108,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
     private String[] notificationPermission = {Manifest.permission.POST_NOTIFICATIONS};
 
-    private LocationManager locationManager;
-    private Location location;
-    private boolean isGPSEnabled;
-    private boolean isNetworkEnabled;
+//    private LocationManager locationManager;
+//    private Location location;
+//    private boolean isGPSEnabled;
+//    private boolean isNetworkEnabled;
+    private LocationService locationService = new LocationService();
 
     private List<Station> stationData = new ArrayList<>();
     private UserCurrentData userCurrentData;
@@ -133,10 +134,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 viewModel.setUserCurrentData(currentData);
 
                 writeToSharedPreference("currentData");
-//                currentData = apiService.getCurrentData();
-//                currentData.setStationName(intent.getStringExtra("currentStationName"));
-//                currentData.setWbgtValue(intent.getStringExtra("currentWbgt"));
-//                dayForecast = intent.getSerializableExtra()
             }
             else {
 
@@ -144,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 writeToSharedPreference("dayForecast");
 
             }
-//            writeToSharedPreference();
 
             Fragment mainFragment = new MainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -161,21 +157,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
 //        register();
-        storeStationData();
+        stationData = locationService.storeStationData();
+
 
         // create view model object
         viewModel = new ViewModelProvider(this).get(StationDataViewModel.class);
-
-//        Intent intent = getIntent();
-//        String stationName = intent.getStringExtra("stationName");
-//        String wbgt = intent.getStringExtra("wbgt");
-//
-//        // store current data in object
-//        userCurrentData = new UserCurrentData(stationName,wbgt);
-//
-//        stationData = (List<Station>) intent.getSerializableExtra("stationList");
-//        dayForecast = (Map<String, List<String>>) intent.getSerializableExtra("dayForecast");
-//        xHoursForecast = (Map<Integer, List<Double>>) intent.getSerializableExtra("xHoursForecast");
 
         //notification icon
 
@@ -211,7 +197,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mTargetFile = new File(getFilesDir(), folder + "/" + fileName);
         System.out.println("NotiTest" + notificationsTest);
 
-
         Places.initialize(getApplicationContext(), apiKey);
         placesClient = com.google.android.libraries.places.api.Places.createClient(this);
 
@@ -226,38 +211,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
-//        checkPermission();
-
         //getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MainFragment()).commit();
         Fragment mainFragment = new MainFragment();
-//        mainFragment.setStationName(stationName);
-//        mainFragment.setWbgtValue(wbgt);
-//        mainFragment.setDayForecast(dayForecast);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, mainFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-
-
-    }
-
-    public void storeStationData(){
-        // add station data
-        stationData.add(new Station("S117", "Ban Yan", 103.679, 1.256));
-        stationData.add(new Station("S116", "West Coast", 103.754, 1.281));
-        stationData.add(new Station("S50", "Clementi", 103.7768, 1.3337));
-        stationData.add(new Station("S60", "Sentosa", 103.8279, 1.25));
-        stationData.add(new Station("S107","East Coast Parkway",103.9625,1.3135));
-        stationData.add(new Station("S43","Kim Chuan Street",103.8878,1.3399));
-        stationData.add(new Station("S111","Scotts Road",103.8365,1.31055));
-        stationData.add(new Station("S115","Tuas South Avenue 3",103.61843,1.29377));
-        stationData.add(new Station("S109","Ang Mo Kio Avenue 5",103.8492,1.3764));
-        stationData.add(new Station("S121","Choa Chu Kang Road",103.72244,1.37288));
-        stationData.add(new Station("S104","Woodlands Avenue 9",103.78538,1.44387));
-        stationData.add(new Station("S24","Upper Changi Road North",103.9826,1.3678));
-        stationData.add(new Station("S44","Nanyang Avenue",103.68166,1.34583));
-
-        apiService.setStationData(stationData);
 
     }
 
@@ -371,42 +330,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void checkPermission() {
         if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED) {
-            getCurrentLocation();
+            getUserCurrentLocation();
 
         } else {
             ActivityCompat.requestPermissions(this, locationPermission, LOCATION_PERMISSION_REQCODE);
         }
     }
 
-    // get user current location
-    public void getCurrentLocation() {
-
-        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        if (isGPSEnabled && isNetworkEnabled) {
-            if (locationManager != null) {
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if(location != null){
-                    calculateDistance(location);
-//                    Log.i("currentlocation","lat:"+location.getLatitude()+" long: "+location.getLongitude());
-                }
-                else{
-                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if(location != null){
-                        calculateDistance(location);
-                        Log.i("CURRENT","lat: "+location.getLatitude()+" long: "+location.getLongitude());
-                    }
-                }
-            }
-        }
-        else{
-            Toast.makeText(getApplicationContext(), "Make sure you have GPS or Network service available.", Toast.LENGTH_SHORT).show();
-        }
-
+    public void getUserCurrentLocation(){
+        nearestStation = locationService.getCurrentLocation(getApplicationContext());
+        checkCurrentData(nearestStation);
     }
 
     @Override
@@ -414,72 +347,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQCODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation();
+                getUserCurrentLocation();
             }
         }
-    }
-
-    // calculate distance between user and stations
-    public void calculateDistance(Location location){
-        float[] results = new float[1];
-        HashMap<String,Float> dstWithStation = new HashMap<String, Float>();
-        for(Station s: stationData){
-            Location.distanceBetween(location.getLatitude(),location.getLongitude(),s.getLatitude(),s.getLongitude(),results);
-            dstWithStation.put(s.getId(),results[0]);
-        }
-
-        Comparator<Map.Entry<String,Float>> valueComparator = new Comparator<Map.Entry<String, Float>>() {
-            @Override
-            public int compare(Map.Entry<String, Float> t1, Map.Entry<String, Float> t2) {
-                return t1.getValue().compareTo(t2.getValue());
-            }
-        };
-
-        Set<Map.Entry<String, Float>> stationDistanceSet = dstWithStation.entrySet();
-        List<Map.Entry<String, Float>> stationDistanceList = new ArrayList<>(stationDistanceSet);
-
-        // get nearest station
-        Collections.sort(stationDistanceList,valueComparator);
-        nearestStation = stationDistanceList.get(0).getKey();
-        Log.i("NEAREST STATION",nearestStation);
-
-        checkCurrentData(nearestStation);
-
     }
 
     public void checkCurrentData(String nearestStation){
 
-//        viewModel.getStateData().observe(this, state -> {
-//            Log.i("stateData",state.getStationId());
-//        });
-
-//        Intent intent = new Intent(MainActivity.this,ApiService.class);
-//        intent.putExtra("stationId",nearestStation);
-//        intent.putExtra("stationData",(Serializable) stationData);
-//        startService(intent);
-
         SharedPreferences shr = getSharedPreferences("wbgt_main_fragment", MODE_PRIVATE);
-        String currentStationName = shr.getString("currentStationName","");
         String currentStationId = shr.getString("currentStationId","");
         if(!currentStationId.equals(nearestStation)){
             Intent intent = new Intent(MainActivity.this,ApiService.class);
             intent.putExtra("stationId",nearestStation);
             intent.putExtra("stationData",(Serializable) stationData);
             startService(intent);
-//            apiService.getCurrentWBGTData(nearestStation);
-//            Thread bkThread = new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    apiService.getCurrentWBGTData(nearestStation);
-////            apiService.getXDayForecast(nearestStation);
-//                }
-//            });
-//            bkThread.run();
-//
-//
-////            currentData = apiService.getCurrentData();
-////            dayForecast = apiService.getDayForecast();
-////            writeToSharedPreference();
         }
     }
 
@@ -497,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         editor.commit();
-//        Log.i("dayforecast",dayForecastString);
     }
 
     public String convertMapToString(Map<String,List<String>> dayForecast){
@@ -512,7 +392,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         IntentFilter filter = new IntentFilter();
         filter.addAction("CurrentWbgtCompleted");
         filter.addAction("DayForecastCompleted");
-//        filter.addAction("HourlyForecastCompleted");
         registerReceiver(apiReceiver,filter);
     }
 }

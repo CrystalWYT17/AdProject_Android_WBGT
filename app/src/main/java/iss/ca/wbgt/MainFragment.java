@@ -9,6 +9,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -52,8 +53,8 @@ public class MainFragment extends Fragment {
     //for line chart
     private LineChart lineChart;
     private ArrayList<Entry> lineEntries = new ArrayList<>();
-    MyLineChart myLineChart;
-    ProgressBar progressBar;
+    private MyLineChart myLineChart;
+    private ProgressBar progressBar;
 
     //for recyclerview
     private RecyclerView recyclerView;
@@ -73,6 +74,8 @@ public class MainFragment extends Fragment {
     private String stationName;
     private String wbgtValue;
     private String stationId;
+
+    private StationDataViewModel viewModel;
 
     private Map<String,List<String>> dayForecast = new HashMap<>();
     private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
@@ -133,6 +136,7 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -140,22 +144,44 @@ public class MainFragment extends Fragment {
         TextView txtStationName = rootView.findViewById(R.id.station);
         TextView txtWbgtValue = rootView.findViewById(R.id.wbgt_value);
 
+        // get view model
+        viewModel = new ViewModelProvider(this).get(StationDataViewModel.class);
+        Log.i("view", viewModel.toString());
+
+        viewModel.getStateData().observe(getViewLifecycleOwner(),s -> {
+            if(s.getStationName() != null && s.getWbgtValue() != null){
+                txtStationName.setText(s.getStationName());
+                txtWbgtValue.setText(s.getWbgtValue());
+            }
+
+
+        });
+
         SharedPreferences shr = getActivity().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
         String currentStationName = shr.getString("currentStationName","");
         String currentWbgt = shr.getString("currentWbgt","");
         String dayForecastString = shr.getString("dayForecast","");
-        String stationId = shr.getString("currentStationId", "");
+        String stationId = shr.getString("currentStationId", "S121");
 
-        if(dayForecastString.isEmpty() && currentWbgt.isEmpty() && currentStationName.isEmpty()){
-            getDayForecastStaticData();
-            txtStationName.setText("Choa Chu Kang Station");
-            txtWbgtValue.setText("33");
-        }
-        else{
-//            convertStringToMap(dayForecastString);
-//            getDataForXDaysForecast();
-            txtStationName.setText(currentStationName);
-            txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
+        if(txtStationName.getText() == ""){
+
+            if( currentWbgt.isEmpty() && currentStationName.isEmpty()){
+
+                txtStationName.setText("Choa Chu Kang Station");
+                txtWbgtValue.setText("33");
+            }
+            else{
+                txtStationName.setText(currentStationName);
+                txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
+            }
+            if(dayForecastString.isEmpty()){
+                getDayForecastStaticData();
+            }
+            else{
+                convertStringToMap(dayForecastString);
+                getDataForXDaysForecast();
+            }
+
         }
 
         //linechart
@@ -210,7 +236,6 @@ public class MainFragment extends Fragment {
         });
 
 
-
         //recyclerView
         recyclerView = (RecyclerView) rootView.findViewById(R.id.xDaysForecast);
         layoutManager = new LinearLayoutManager(requireContext());
@@ -257,7 +282,7 @@ public class MainFragment extends Fragment {
                     dayName = "Today";
                 }
                 else{
-                    dayName = dayNames.get(index);
+                    dayName = dayNames.get(index).substring(0,3);
                 }
                 List<String> minMaxWbgt = dayForecast.get(String.valueOf(currentDay));
                 Double minVal = Double.parseDouble(minMaxWbgt.get(0));
@@ -284,10 +309,11 @@ public class MainFragment extends Fragment {
         String[] eachDayList = dayForecastString.split("/");
         String[] dayName;
         String[] minMaxVal;
-        List<String> lowHigh = new ArrayList<>();
+
         for(String eachDay: eachDayList){
+            List<String> lowHigh = new ArrayList<>();
             dayName = eachDay.split(",");
-            minMaxVal = dayName[1].split("|");
+            minMaxVal = dayName[1].split("\\|");
             lowHigh.add(minMaxVal[0]);
             lowHigh.add(minMaxVal[1]);
             dayForecast.put(dayName[0],lowHigh);

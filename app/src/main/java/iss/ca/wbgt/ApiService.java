@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -56,6 +57,7 @@ public class ApiService extends Service {
         String stationId = intent.getStringExtra("stationId");
         stationData = (List<Station>) intent.getSerializableExtra("stationData");
         getCurrentWBGTData(stationId);
+        getXDayForecast(stationId);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -178,52 +180,66 @@ public class ApiService extends Service {
 
     public void getXDayForecast(String stationId){
 
-        ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
-        Call<Object> callApi = apiInterface.getXDayForecast(7,stationId);
-        callApi.enqueue(new Callback<Object>() {
+        Thread bkThread = new Thread(new Runnable() {
             @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                Object obj = response.body();
-                JSONArray jsonArray;
-                JSONObject jsonObject;
+            public void run() {
+                ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
+                Call<Object> callApi = apiInterface.getXDayForecast(7,stationId);
+                callApi.enqueue(new Callback<Object>() {
+                    @Override
+                    public void onResponse(Call<Object> call, Response<Object> response) {
+                        Object obj = response.body();
+                        JSONArray jsonArray;
+                        JSONObject jsonObject;
 //                Dictionary<String,Map<String,Double>> dayForecastDict = new Hashtable<>();
 
 
-                try {
-                    jsonArray = new JSONArray(obj.toString());
+                        try {
+                            jsonArray = new JSONArray(obj.toString());
 
-                    if(jsonArray.length() > 0){
-                        for(int i=0; i<jsonArray.length(); i++){
-                            List<String> wbgtList = new ArrayList<String>();
-                            jsonObject = new JSONObject(jsonArray.get(i).toString());
-                            String day = checkDay(jsonObject.get("timestamp").toString());
-                            wbgtList.add(String.valueOf(jsonObject.getDouble("min_wbgt")));
-                            wbgtList.add(String.valueOf(jsonObject.getDouble("max_wbgt")));
+                            if(jsonArray.length() > 0){
+                                for(int i=0; i<jsonArray.length(); i++){
+                                    List<String> wbgtList = new ArrayList<String>();
+                                    jsonObject = new JSONObject(jsonArray.get(i).toString());
+                                    String day = checkDay(jsonObject.get("timestamp").toString());
+                                    wbgtList.add(String.valueOf(jsonObject.getDouble("min_wbgt")));
+                                    wbgtList.add(String.valueOf(jsonObject.getDouble("max_wbgt")));
 //                            minMaxWbgt.put("low",jsonObject.getDouble("min_wbgt"));
 //                            minMaxWbgt.put("high",jsonObject.getDouble("max_wbgt"));
-                            dayForecast.put(day,wbgtList);
+                                    dayForecast.put(day,wbgtList);
+                                }
+                            }
+                            System.out.println("HEllo");
+                            Log.i("data", dayForecast.toString());
+
+                        } catch (JSONException e) {
+                            jsonArray = null;
+                        } catch (ParseException e){
+                            jsonArray = null;
                         }
-                    }
-                    System.out.println("HEllo");
-                    Log.i("data", dayForecast.toString());
 
-                } catch (JSONException e) {
-                    jsonArray = null;
-                } catch (ParseException e){
-                    jsonArray = null;
-                }
-
-                Log.i("MyData","sorry");
+                        Log.i("MyData","sorry");
+                        Intent intent = new Intent();
+                        intent.setAction("DayForecastCompleted");
+                        intent.putExtra("dayForecast",(Serializable) dayForecast);
+//                    intent.putExtra("currentWbgt",currentWbgtValue);
+//                    intent.putExtra("currentStationName",currentStationName);
+                        sendBroadcast(intent);
 
 //                createNotificationChannel();
 //                createNotification(35);
-            }
+                    }
 
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onFailure(Call<Object> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), "Unexpected event happens. Try again later.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
         });
+        bkThread.run();
+
 
 
     }

@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import androidx.lifecycle.ViewModelProvider;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -120,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private UserCurrentData currentData = new UserCurrentData();
     private String nearestStation;
 
+    private StationDataViewModel viewModel;
+
     protected BroadcastReceiver apiReceiver = new ApiReceiver(){
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -127,12 +130,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if(action.equals("CurrentWbgtCompleted")){
                 currentData.setStationName(intent.getStringExtra("currentStationName"));
                 currentData.setWbgtValue(intent.getStringExtra("currentWbgt"));
+                viewModel.setUserCurrentData(currentData);
+
+                writeToSharedPreference("currentData");
 //                currentData = apiService.getCurrentData();
 //                currentData.setStationName(intent.getStringExtra("currentStationName"));
 //                currentData.setWbgtValue(intent.getStringExtra("currentWbgt"));
 //                dayForecast = intent.getSerializableExtra()
             }
-            writeToSharedPreference();
+            else {
+
+                dayForecast = (Map<String, List<String>>) intent.getSerializableExtra("dayForecast");
+                writeToSharedPreference("dayForecast");
+
+            }
+//            writeToSharedPreference();
+
+            Fragment mainFragment = new MainFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, mainFragment);
+            transaction.commit();
+
         }
     };
 
@@ -142,8 +160,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        register();
+//        register();
         storeStationData();
+
+        // create view model object
+        viewModel = new ViewModelProvider(this).get(StationDataViewModel.class);
 
 //        Intent intent = getIntent();
 //        String stationName = intent.getStringExtra("stationName");
@@ -242,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onStart() {
-//        register();
+        register();
         checkPermission();
         checkNotificationPermission();
         super.onStart();
@@ -424,31 +445,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         checkCurrentData(nearestStation);
 
-//        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                currentData = apiService.getCurrentData();
-//                dayForecast = apiService.getDayForecast();
-//                writeToSharedPreference();
-//                Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
-//                intent.putExtra("stationName",currentData.getStationName());
-//                intent.putExtra("wbgt",currentData.getWbgtValue());
-//                intent.putExtra("dayForecast",(Serializable) dayForecast);
-//                intent.putExtra("stationList",(Serializable) stationData);
-//                startActivity(intent);
-//            }
-//        },10000);
-
-
     }
 
     public void checkCurrentData(String nearestStation){
+
+//        viewModel.getStateData().observe(this, state -> {
+//            Log.i("stateData",state.getStationId());
+//        });
+
+//        Intent intent = new Intent(MainActivity.this,ApiService.class);
+//        intent.putExtra("stationId",nearestStation);
+//        intent.putExtra("stationData",(Serializable) stationData);
+//        startService(intent);
+
         SharedPreferences shr = getSharedPreferences("wbgt_main_fragment", MODE_PRIVATE);
         String currentStationName = shr.getString("currentStationName","");
         String currentStationId = shr.getString("currentStationId","");
-        if(currentStationId != nearestStation){
+        if(!currentStationId.equals(nearestStation)){
             Intent intent = new Intent(MainActivity.this,ApiService.class);
             intent.putExtra("stationId",nearestStation);
             intent.putExtra("stationData",(Serializable) stationData);
@@ -462,25 +475,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                }
 //            });
 //            bkThread.run();
-
-
-//            currentData = apiService.getCurrentData();
-//            dayForecast = apiService.getDayForecast();
-//            writeToSharedPreference();
+//
+//
+////            currentData = apiService.getCurrentData();
+////            dayForecast = apiService.getDayForecast();
+////            writeToSharedPreference();
         }
     }
 
-    public void writeToSharedPreference(){
-        String dayForecastString = convertMapToString(dayForecast);
+    public void writeToSharedPreference(String state){
         SharedPreferences shr = getSharedPreferences("wbgt_main_fragment",MODE_PRIVATE);
         SharedPreferences.Editor editor = shr.edit();
-        editor.putString("currentStationName",currentData.getStationName());
-        editor.putString("currentStationId",nearestStation);
-        editor.putString("currentWbgt",currentData.getWbgtValue());
-//        editor.putString("dayForecast",dayForecastString);
+        if(state.equals("currentData")){
+            editor.putString("currentStationName",currentData.getStationName());
+            editor.putString("currentStationId",nearestStation);
+            editor.putString("currentWbgt",currentData.getWbgtValue());
+        }
+        else{
+            String dayForecastString = convertMapToString(dayForecast);
+            editor.putString("dayForecast",dayForecastString);
+        }
 
         editor.commit();
-        Log.i("dayforecast",dayForecastString);
+//        Log.i("dayforecast",dayForecastString);
     }
 
     public String convertMapToString(Map<String,List<String>> dayForecast){
@@ -495,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         IntentFilter filter = new IntentFilter();
         filter.addAction("CurrentWbgtCompleted");
         filter.addAction("DayForecastCompleted");
-        filter.addAction("HourlyForecastCompleted");
+//        filter.addAction("HourlyForecastCompleted");
         registerReceiver(apiReceiver,filter);
     }
 }

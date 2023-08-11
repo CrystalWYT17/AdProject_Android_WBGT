@@ -1,14 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".FaqFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="FAQ" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/faq"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-</FrameLayout>
+            <TextView
+                android:id="@+id/faq1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/faq1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title"/>
+            <TextView
+                android:id="@+id/answer1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="We are a team of students from the National University of Singapore's Institute of Systems 	Science (NUS-ISS). Our shared passion for technology and problem-solving drives us to create 	innovative solutions. "
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/faq1"/>
+            <TextView
+                android:id="@+id/faq2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="\u2022 What is your project"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/answer1"/>
+            <TextView
+                android:id="@+id/answer2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Our project is a web and Android application focused on the Wet Bulb Globe Temperature (WBGT). It provides real-time WBGT data, forecasts for the next 24 hours, and unique features to help users stay safe and plan their activities."
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/faq2"/>
+            <TextView
+                android:id="@+id/faq3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="\u2022 What is WBGT?"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/answer2"/>
+            <TextView
+                android:id="@+id/answer3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="WBGT stands for Wet Bulb Globe Temperature, a crucial metric for assessing heat stress and ensuring safety in various environments. It's an important factor in planning outdoor activities, especially during hot and humid conditions. Each WBGT category has its appropriate work rest cycle recommendations, an example is the SAF WRC: "
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/faq3"/>
+            <ImageView
+                android:id="@+id/wbgt_table"
+                android:background="@drawable/work_rest"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/answer3"/>
+            <TextView
+                android:id="@+id/faq4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="\u2022 How does your app work?  "
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/wbgt_table"/>
+            <TextView
+                android:id="@+id/answer4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Our app displays the current WBGT and utilizes advanced prediction models to forecast WBGT levels for the next 24 hours. We also offer a valuable feature that provides a minimum and maximum estimate for WBGT in the coming days."
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/faq4"/>
+            <TextView
+                android:id="@+id/faq5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="\u2022 Why is your app useful?"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/answer4"/>
+            <TextView
+                android:id="@+id/answer5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Our app helps users proactively plan and manage their activities based on weather conditions, ensuring safety and comfort. Whether you're an individual or part of an organization, our app provides the necessary information to make informed decisions. "
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/faq5"/>
+            <TextView
+                android:id="@+id/faq6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="\u2022 Who can benefit from this app?"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/answer5"/>
+            <TextView
+                android:id="@+id/answer6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Anyone who needs to be aware of heat stress and weather conditions can benefit from our app. This includes outdoor enthusiasts, sports teams, event organizers, and professionals working in various industries."
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/faq6"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

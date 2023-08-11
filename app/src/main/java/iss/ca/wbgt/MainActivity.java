@@ -35,6 +35,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -81,6 +82,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Location lastKnownLocation;
     private Task<Location> locationResult;
     private FusedLocationProviderClient fusedLocationClient;
+
+
+    private String packageName = "iss.ca.wbgt";
 
     //notification Fragment
     private Fragment prevFragment = new MainFragment();
@@ -252,6 +256,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             transaction.replace(R.id.fragment_container, fragment);
             //transaction.addToBackStack(null);
             transaction.commit();
+        } else if (item.getItemId() == R.id.nav_settings) {
+            Intent intent = new Intent();
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+
+            intent.putExtra("android.provider.extra.APP_PACKAGE", packageName);
+
+            startActivity(intent);
+
+
         }
 
 

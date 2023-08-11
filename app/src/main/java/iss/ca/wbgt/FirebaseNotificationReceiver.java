@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -50,6 +51,7 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage){
         super.onMessageReceived(remoteMessage);
+        String stationId = getNearestStation();
         System.out.println("Message Received");
         if(remoteMessage.getNotification() != null){
             //create notification
@@ -60,19 +62,22 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
             }else {
                 Log.d("STATION", "null for station");
             }
-            String title = remoteMessage.getNotification().getTitle();
-            String body = remoteMessage.getNotification().getBody();
-            System.out.println(title + body);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
-            String time = formatter.format(LocalDateTime.now());
-            NotificationModel newNotification = new NotificationModel(title, body, time);
-            //save notification to file
-            writeNotificationToFile(newNotification);
-            //get stationId and need to implement to get the nearest station
+            String stationIdFromNotification = remoteMessage.getData().get("stationId");
+            if(stationIdFromNotification != null && stationIdFromNotification.equals(stationId)){
+                String title = remoteMessage.getNotification().getTitle();
+                String body = remoteMessage.getNotification().getBody();
+                System.out.println(title + body);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
+                String time = formatter.format(LocalDateTime.now());
+                NotificationModel newNotification = new NotificationModel(title, body, time);
+                //save notification to file
+                writeNotificationToFile(newNotification);
+                //get stationId and need to implement to get the nearest station
 
 
-            //create notification
-            createNotification(title, body);
+                //create notification
+                createNotification(title, body);
+            }
         }
     }
 
@@ -184,6 +189,12 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
                 }
             }
         }
+    }
+
+    public String getNearestStation(){
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
+        String stationId = pref.getString("currentStationId", "S121");
+        return stationId;
     }
 
 //    public void showNotification(String title, String body){

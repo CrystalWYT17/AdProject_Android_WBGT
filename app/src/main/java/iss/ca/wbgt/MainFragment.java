@@ -140,6 +140,28 @@ public class MainFragment extends Fragment {
         myLineChart = new MyLineChart(lineChart, lineEntries);
         myLineChart.drawLineChart();
 
+        // set station name and wbgt value
+        TextView txtStationName = rootView.findViewById(R.id.station);
+        TextView txtWbgtValue = rootView.findViewById(R.id.wbgt_value);
+
+        SharedPreferences shr = getActivity().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
+        String currentStationName = shr.getString("currentStationName","");
+        String currentWbgt = shr.getString("currentWbgt","");
+        String dayForecastString = shr.getString("dayForecast","");
+        String stationId = shr.getString("currentStationId", "");
+
+        if(dayForecastString.isEmpty() && currentWbgt.isEmpty() && currentStationName.isEmpty()){
+            getDayForecastStaticData();
+            txtStationName.setText("Choa Chu Kang Station");
+            txtWbgtValue.setText("33");
+        }
+        else{
+//            convertStringToMap(dayForecastString);
+//            getDataForXDaysForecast();
+            txtStationName.setText(currentStationName);
+            txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
+        }
+
         //refresh
         SwipeRefreshLayout refreshLayout = rootView.findViewById(R.id.refreshLayout);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -168,26 +190,6 @@ public class MainFragment extends Fragment {
             }
         });
 
-        // set station name and wbgt value
-        TextView txtStationName = rootView.findViewById(R.id.station);
-        TextView txtWbgtValue = rootView.findViewById(R.id.wbgt_value);
-
-        SharedPreferences shr = getActivity().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
-        String currentStationName = shr.getString("currentStationName","");
-        String currentWbgt = shr.getString("currentWbgt","");
-        String dayForecastString = shr.getString("dayForecast","");
-
-        if(dayForecastString.isEmpty() && currentWbgt.isEmpty() && currentStationName.isEmpty()){
-            getDayForecastStaticData();
-            txtStationName.setText("Choa Chu Kang Station");
-            txtWbgtValue.setText("33");
-        }
-        else{
-//            convertStringToMap(dayForecastString);
-//            getDataForXDaysForecast();
-            txtStationName.setText(currentStationName);
-            txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
-        }
 
 
         //recyclerView

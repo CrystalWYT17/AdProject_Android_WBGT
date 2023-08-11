@@ -4,6 +4,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +41,8 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     private List<String> stationNameList;
     private List<Station> stationList;
+    //ViewModel
+    private MainViewModel viewModel;
     private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
     private MapView mMapView;
     //linechart
@@ -83,6 +88,8 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        //ViewModel
+
 
     }
 
@@ -91,6 +98,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_station, container, false);
+
         Spinner spinner = (Spinner) rootView.findViewById(R.id.dropdown);
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         loadingBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
@@ -151,6 +159,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         mMapView.onResume();
     }
 
+
     @Override
     public void onPause() {
         mMapView.onPause();
@@ -168,6 +177,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         super.onLowMemory();
         mMapView.onLowMemory();
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

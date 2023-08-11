@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -52,6 +53,7 @@ public class MainFragment extends Fragment {
     private LineChart lineChart;
     private ArrayList<Entry> lineEntries = new ArrayList<>();
     MyLineChart myLineChart;
+    ProgressBar progressBar;
 
     //for recyclerview
     private RecyclerView recyclerView;
@@ -134,12 +136,6 @@ public class MainFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
 
-        //linechart
-        lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
-        getEntries();
-        myLineChart = new MyLineChart(lineChart, lineEntries);
-        myLineChart.drawLineChart();
-
         // set station name and wbgt value
         TextView txtStationName = rootView.findViewById(R.id.station);
         TextView txtWbgtValue = rootView.findViewById(R.id.wbgt_value);
@@ -161,6 +157,29 @@ public class MainFragment extends Fragment {
             txtStationName.setText(currentStationName);
             txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
         }
+
+        //linechart
+        lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
+        lineChart.setVisibility(View.GONE);
+        ApiService service = new ApiService();
+
+        CompletableFuture<Map<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
+            return service.getXHourForecastMultiStation(stationId);
+        });
+
+        chartData.thenAccept(forecastData -> {
+            xHoursForecast = forecastData;
+            lineEntries.clear();
+            getEntries();
+
+            getActivity().runOnUiThread(() -> {
+                MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+                progressBar.setVisibility(View.GONE);
+                lineChart.setVisibility(View.VISIBLE);
+                newLineChart.drawLineChart();
+            });
+        });
 
         //refresh
         SwipeRefreshLayout refreshLayout = rootView.findViewById(R.id.refreshLayout);

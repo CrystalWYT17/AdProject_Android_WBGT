@@ -41,8 +41,6 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     private List<String> stationNameList;
     private List<Station> stationList;
-    //ViewModel
-    private MainViewModel viewModel;
     private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
     private MapView mMapView;
     //linechart

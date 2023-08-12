@@ -13,4 +13,26 @@
     <string name="hourly_trend">Hourly Trend</string>
     <string name="faq">Frequently Asked Questions (FAQ)</string>
     <string name="faq1">\u2022 Who are you?</string>
+    <string name="answerOne">We are a team of students from the National University of Singapore\'s Institute of Systems Science (NUS-ISS). Our shared passion for technology and problem-solving drives us to create innovative solutions.</string>
+    <string name="faqTwo">• What is your project?</string>
+    <string name="answerTwo">Our project is a web and Android application focused on the Wet Bulb Globe Temperature (WBGT). It provides real-time WBGT data, forecasts for the next 24 hours, and unique features to help users stay safe and plan their activities.</string>
+    <string name="faqThree">• What is WBGT?</string>
+    <string name="answerThree">WBGT stands for Wet Bulb Globe Temperature, a crucial metric for assessing heat stress and ensuring safety in various environments. It\'s an important factor in planning outdoor activities, especially during hot and humid conditions. Each WBGT category has its appropriate work rest cycle recommendations, an example is the SAF WRC:</string>
+    <string name="faqFour">• How does your app work?</string>
+    <string name="answerFour">Our app displays the current WBGT and utilizes advanced prediction models to forecast WBGT levels for the next 24 hours. We also offer a valuable feature that provides a minimum and maximum estimate for WBGT in the coming days.</string>
+    <string name="faqFive">• Why is your app useful?</string>
+    <string name="answerFive">Our app helps users proactively plan and manage their activities based on weather conditions, ensuring safety and comfort. Whether you\'re an individual or part of an organization, our app provides the necessary information to make informed decisions.</string>
+    <string name="faqSix">• Who can benefit from this app?</string>
+    <string name="answerSix">Anyone who needs to be aware of heat stress and weather conditions can benefit from our app. This includes outdoor enthusiasts, sports teams, event organizers, and professionals working in various industries.</string>
+    <string name="work_rest_table">Work Rest Table</string>
+    <string name="team_description">We are Team 9, a group of passionate students from SA56 at NUS Institute of Systems Science (NUS ISS). Our team comprises skilled individuals specializing in diverse domains: encompassing web development, mobile app development, machine learning, and devops.</string>
+    <string name="about_us">About Us</string>
+    <string name="purpose">Our Purpose:</string>
+    <string name="purpose_content">Our primary focus is on your safety and well-being. Our app provides real-time WBGT data and 24-hour forecasts, accompanied by unique features designed to help you make informed decisions about your activities while keeping your safety in mind.</string>
+    <string name="contact_us">Contact Us:</string>
+    <string name="contact_text">If you have any questions, concerns, or require assistance, please don\'t hesitate to get in touch with us. We\'re here to help!</string>
+    <string name="phone_no">+65 97280045</string>
+    <string name="email_address">pragmaticDevs@Team9.com</string>
+    <string name="wish">Stay safe and enjoy your activities!</string>
+    <string name="team_9">Team 9</string>
 </resources>

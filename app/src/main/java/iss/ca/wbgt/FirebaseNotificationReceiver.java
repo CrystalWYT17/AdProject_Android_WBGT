@@ -72,14 +72,14 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
             NotificationModel newNotification = new NotificationModel(title, body, time);
             writeNotificationToFile(newNotification);
             //save Notification with worker
-            Gson gson = new Gson();
-            String serializeObject = gson.toJson(newNotification);
-            Data input = new Data.Builder().putString("notification", serializeObject).build();
-            //Enqueue worker
-            OneTimeWorkRequest fileWriteRequest = new OneTimeWorkRequest.Builder(FileWritingWorker.class)
-                    .setInputData(input)
-                    .build();
-            WorkManager.getInstance(getApplicationContext()).enqueue(fileWriteRequest);
+//            Gson gson = new Gson();
+//            String serializeObject = gson.toJson(newNotification);
+//            Data input = new Data.Builder().putString("notification", serializeObject).build();
+//            //Enqueue worker
+//            OneTimeWorkRequest fileWriteRequest = new OneTimeWorkRequest.Builder(FileWritingWorker.class)
+//                    .setInputData(input)
+//                    .build();
+//            WorkManager.getInstance(getApplicationContext()).enqueue(fileWriteRequest);
             //get stationId and need to implement to get the nearest station
 
 

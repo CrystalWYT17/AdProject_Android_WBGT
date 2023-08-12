@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,9 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
     //linechart
     private LineChart lineChart;
     private ProgressBar loadingBar;
+    private StationDataViewModel viewModel;
     private ArrayList<Entry> lineEntries = new ArrayList<>();
+    private String stationId;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -108,6 +111,8 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         stationList = getStationList();
         initializeStationNameList(stationList);
 
+
+
         ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, stationNameList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
@@ -144,6 +149,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
             });
         });
     }
+
 
 
     @Override

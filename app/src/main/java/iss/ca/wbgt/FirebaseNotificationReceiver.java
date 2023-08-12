@@ -15,6 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,6 +26,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,32 +58,35 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
         String stationId = getNearestStation();
         System.out.println("Message Received");
-        if(remoteMessage.getNotification() != null){
+        remoteMessage.getData();
+        Log.d("STATION", remoteMessage.getData().toString());
+        String stationIdFromNotification = remoteMessage.getData().get("station_id");
+        Log.d("StationIdFromNotification", stationIdFromNotification);
+        if(stationIdFromNotification != null && stationIdFromNotification.equals(stationId)){
+            String title = remoteMessage.getData().get("title");
+            String body = remoteMessage.getData().get("body");
+            System.out.println(title + body);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
+            String time = formatter.format(LocalDateTime.now());
+            //save notification to file
+            NotificationModel newNotification = new NotificationModel(title, body, time);
+            writeNotificationToFile(newNotification);
+            //save Notification with worker
+            Gson gson = new Gson();
+            String serializeObject = gson.toJson(newNotification);
+            Data input = new Data.Builder().putString("notification", serializeObject).build();
+            //Enqueue worker
+            OneTimeWorkRequest fileWriteRequest = new OneTimeWorkRequest.Builder(FileWritingWorker.class)
+                    .setInputData(input)
+                    .build();
+            WorkManager.getInstance(getApplicationContext()).enqueue(fileWriteRequest);
+            //get stationId and need to implement to get the nearest station
+
+
             //create notification
-            if(remoteMessage.getData() != null){
-                Log.d("STATION", remoteMessage.getData().toString());
-                String station = remoteMessage.getData().get("station_id");
-                //Log.d("STATION", station);
-            }else {
-                Log.d("STATION", "null for station");
+            createNotification(title, body);
             }
-            String stationIdFromNotification = remoteMessage.getData().get("stationId");
-            if(stationIdFromNotification != null && stationIdFromNotification.equals(stationId)){
-                String title = remoteMessage.getNotification().getTitle();
-                String body = remoteMessage.getNotification().getBody();
-                System.out.println(title + body);
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
-                String time = formatter.format(LocalDateTime.now());
-                NotificationModel newNotification = new NotificationModel(title, body, time);
-                //save notification to file
-                writeNotificationToFile(newNotification);
-                //get stationId and need to implement to get the nearest station
 
-
-                //create notification
-                createNotification(title, body);
-            }
-        }
     }
 
 //    @Override
@@ -120,7 +128,7 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setVibrate(new long[] { 1000, 1000, 1000,
                         1000, 1000 })

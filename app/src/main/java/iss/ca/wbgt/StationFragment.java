@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -45,6 +46,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
     private List<Station> stationList;
     private LinkedHashMap<Integer, List<Double>> xHoursForecast = new LinkedHashMap<>();
     private MapView mMapView;
+    private TextView serverTextView;
     //linechart
     private LineChart lineChart;
     private List<String> labels = new ArrayList<>();
@@ -105,6 +107,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         Spinner spinner = (Spinner) rootView.findViewById(R.id.dropdown);
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         loadingBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
+        serverTextView = (TextView) rootView.findViewById(R.id.serverError);
 //        getEntries();
 //        MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
 //        newLineChart.drawLineChart();
@@ -143,12 +146,22 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
             lineEntries.clear();
             getEntries();
 
-            getActivity().runOnUiThread(() -> {
-                MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
-                loadingBar.setVisibility(View.GONE);
-                lineChart.setVisibility(View.VISIBLE);
-                newLineChart.drawLineChart();
-            });
+            if(lineEntries == null || lineEntries.isEmpty()){
+                getActivity().runOnUiThread(() -> {
+                    loadingBar.setVisibility(View.GONE);
+                    lineChart.setVisibility(View.GONE);
+                    serverTextView.setVisibility(View.VISIBLE);
+                });
+
+            }else {
+                getActivity().runOnUiThread(() -> {
+                    MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+                    loadingBar.setVisibility(View.GONE);
+                    lineChart.setVisibility(View.VISIBLE);
+                    newLineChart.drawLineChart();
+                });
+            }
+
         });
     }
 

@@ -287,6 +287,7 @@ public class ApiService extends Service {
                 return hourlyForecast;
             } else {
                 // Handle the failure scenario here
+                return new LinkedHashMap<>();
             }
         } catch (Exception e) {
             // Handle exceptions here

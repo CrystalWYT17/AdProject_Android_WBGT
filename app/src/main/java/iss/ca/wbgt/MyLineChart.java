@@ -43,6 +43,7 @@ public class MyLineChart {
         xAxis.setValueFormatter(new MyAxisFormatter());
         yAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
         yAxis.setDrawGridLines(false);
+
         //lineChart.getAxisRight().setDrawGridLines(false);
         lineChart.getAxisRight().setEnabled(false);
         xAxis.setGranularity(1f);

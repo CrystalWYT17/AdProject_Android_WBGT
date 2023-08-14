@@ -56,6 +56,7 @@ public class MainFragment extends Fragment {
     private ArrayList<Entry> lineEntries = new ArrayList<>();
     private MyLineChart myLineChart;
     private ProgressBar progressBar;
+    private TextView serverTextView;
 
     //for recyclerview
     private RecyclerView recyclerView;
@@ -171,6 +172,7 @@ public class MainFragment extends Fragment {
         //linechart
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         progressBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
+        serverTextView = (TextView) rootView.findViewById(R.id.serverErrorTxt);
         lineChart.setVisibility(View.GONE);
 //        if(viewModel.getxHourForecastData() == null){
 //            Log.i("hour forecast","null");
@@ -183,16 +185,25 @@ public class MainFragment extends Fragment {
 
         chartData.thenAccept(forecastData -> {
             xHoursForecast = forecastData;
-//            viewModel.setxHourForecastData(xHoursForecast);
             lineEntries.clear();
             getEntries();
 
-            getActivity().runOnUiThread(() -> {
-                MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
-                progressBar.setVisibility(View.GONE);
-                lineChart.setVisibility(View.VISIBLE);
-                newLineChart.drawLineChart();
-            });
+            if(lineEntries == null || lineEntries.isEmpty()){
+                getActivity().runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    lineChart.setVisibility(View.GONE);
+                    serverTextView.setVisibility(View.VISIBLE);
+                });
+
+            }else {
+                getActivity().runOnUiThread(() -> {
+                    MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
+                    progressBar.setVisibility(View.GONE);
+                    lineChart.setVisibility(View.VISIBLE);
+                    newLineChart.drawLineChart();
+                });
+            }
+
         });
 
         //refresh

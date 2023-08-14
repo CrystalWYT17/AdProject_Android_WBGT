@@ -35,6 +35,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -240,7 +241,7 @@ public class MainFragment extends Fragment {
     }
 
     private void getEntries(){
-        Map<Integer, Double> entries = new HashMap<>();
+        LinkedHashMap<Integer, Double> entries = new LinkedHashMap<>();
         xHoursForecast.forEach((key, value)->{
             Double average = value.stream()
                     .mapToDouble(Double::doubleValue)
@@ -248,10 +249,21 @@ public class MainFragment extends Fragment {
                     .getAsDouble();
             entries.put(key, average);
         });
-        //add to lineEntries
-        entries.forEach((key, value)->{
-            lineEntries.add(new Entry(key, value.floatValue()));
-        });
+        //manipulating hour data for linechart
+        //before end of today
+        List<Integer> keys = new ArrayList<>(entries.keySet());
+        for(Integer key:keys){
+            lineEntries.add(new Entry(key, entries.get(key).floatValue()));
+            entries.remove(key);
+            if(key == 23){
+                break;
+            }
+        }
+        //for tomorrow
+        for(Integer key: entries.keySet()){
+            lineEntries.add(new Entry(key+24, entries.get(key).floatValue()));
+        }
+
     }
 
     private void getDataForXDaysForecast(){

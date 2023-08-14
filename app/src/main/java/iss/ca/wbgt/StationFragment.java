@@ -29,6 +29,7 @@ import com.google.android.libraries.places.api.Places;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -42,10 +43,11 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     private List<String> stationNameList;
     private List<Station> stationList;
-    private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
+    private LinkedHashMap<Integer, List<Double>> xHoursForecast = new LinkedHashMap<>();
     private MapView mMapView;
     //linechart
     private LineChart lineChart;
+    private List<String> labels = new ArrayList<>();
     private ProgressBar loadingBar;
     private StationDataViewModel viewModel;
     private ArrayList<Entry> lineEntries = new ArrayList<>();
@@ -132,7 +134,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         loadingBar.setVisibility(View.VISIBLE);
         ApiService service = new ApiService();
 
-        CompletableFuture<Map<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<LinkedHashMap<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
             return service.getXHourForecastMultiStation(stationList.get(position).getId());
         });
 
@@ -207,7 +209,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
     }
 
     private void getEntries(){
-        Map<Integer, Double> entries = new HashMap<>();
+        LinkedHashMap<Integer, Double> entries = new LinkedHashMap<>();
         xHoursForecast.forEach((key, value)->{
             Double average = value.stream()
                     .mapToDouble(Double::doubleValue)
@@ -215,10 +217,20 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
                     .getAsDouble();
             entries.put(key, average);
         });
-        //add to lineEntries
-        entries.forEach((key, value)->{
-            lineEntries.add(new Entry(key, value.floatValue()));
-        });
+        //manipulating hour data for linechart
+        //before end of today
+        List<Integer> keys = new ArrayList<>(entries.keySet());
+        for(Integer key:keys){
+            lineEntries.add(new Entry(key, entries.get(key).floatValue()));
+            entries.remove(key);
+            if(key == 23){
+                break;
+            }
+        }
+        //for tomorrow
+        for(Integer key: entries.keySet()){
+            lineEntries.add(new Entry(key+24, entries.get(key).floatValue()));
+        }
     }
     private List<Station> getStationList(){
         List<Station> stationList = new ArrayList<>();

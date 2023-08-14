@@ -40,6 +40,7 @@ public class MyLineChart {
         YAxis yAxis = lineChart.getAxisLeft();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
+        xAxis.setValueFormatter(new MyAxisFormatter());
         yAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
         yAxis.setDrawGridLines(false);
         //lineChart.getAxisRight().setDrawGridLines(false);

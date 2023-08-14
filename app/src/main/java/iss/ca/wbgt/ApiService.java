@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class ApiService extends Service {
     private String currentWbgtValue;
     private Map<String,List<String>> dayForecast = new HashMap<>();
     private List<Station> stationData = new ArrayList<>();
-    private Map<Integer,List<Double>> xHoursForecast = new HashMap<>();
+    private LinkedHashMap<Integer,List<Double>> xHoursForecast = new LinkedHashMap<>();
     public ApiService(){
 
     }
@@ -257,7 +258,7 @@ public class ApiService extends Service {
         return hour;
     }
 
-    public Map<Integer, List<Double>> getXHourForecastMultiStation(String stationId) {
+    public LinkedHashMap<Integer, List<Double>> getXHourForecastMultiStation(String stationId) {
         CompletableFuture<Map<Integer, List<Double>>> future = new CompletableFuture<>();
 
         ApiInterface apiInterface = ApiClient.buildRetrofitApi().create(ApiInterface.class);
@@ -266,7 +267,7 @@ public class ApiService extends Service {
         try {
             Response<Object> response = callApi.execute();
             if (response.isSuccessful()) {
-                Map<Integer, List<Double>> hourlyForecast = new HashMap<>();
+                LinkedHashMap<Integer, List<Double>> hourlyForecast = new LinkedHashMap<>();
                 Object obj = response.body();
                 JSONArray jsonArray = new JSONArray(obj.toString());
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -292,7 +293,7 @@ public class ApiService extends Service {
         }
 
         // Return a default or empty map in case of failure or exceptions
-        return new HashMap<>();
+        return new LinkedHashMap<>();
     }
 
 

@@ -199,6 +199,7 @@ public class MainFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
                     progressBar.setVisibility(View.GONE);
+                    serverTextView.setVisibility(View.GONE);
                     lineChart.setVisibility(View.VISIBLE);
                     newLineChart.drawLineChart();
                 });

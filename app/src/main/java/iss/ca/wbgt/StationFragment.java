@@ -157,6 +157,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
                 getActivity().runOnUiThread(() -> {
                     MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
                     loadingBar.setVisibility(View.GONE);
+                    serverTextView.setVisibility(View.GONE);
                     lineChart.setVisibility(View.VISIBLE);
                     newLineChart.drawLineChart();
                 });

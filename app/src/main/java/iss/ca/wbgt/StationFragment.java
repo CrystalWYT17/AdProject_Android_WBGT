@@ -93,9 +93,6 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        //ViewModel
-
-
     }
 
     @Override
@@ -108,15 +105,10 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         lineChart = (LineChart) rootView.findViewById(R.id.lineChart);
         loadingBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
         serverTextView = (TextView) rootView.findViewById(R.id.serverError);
-//        getEntries();
-//        MyLineChart newLineChart = new MyLineChart(lineChart, lineEntries);
-//        newLineChart.drawLineChart();
 
         //initialize station data
         stationList = getStationList();
         initializeStationNameList(stationList);
-
-
 
         ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_spinner_item, stationNameList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -207,12 +199,6 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
 
     @Override
     public void onMapReady(GoogleMap map) {
-        //LatLng markerLocation = new LatLng(1.25,103.8279);
-//        map.addMarker(new MarkerOptions().position(new LatLng(1.25,103.8279)).title("Marker"));
-//        int zoomLevel = 12;
-//        map.animateCamera(CameraUpdateFactory.newLatLngZoom(markerLocation, zoomLevel));
-//        map.getUiSettings().setZoomControlsEnabled(true);
-
         for(Station station: stationList){
             int zoomLevel = 10;
             LatLng markerLocation = new LatLng(station.getLatitude(),station.getLongitude());

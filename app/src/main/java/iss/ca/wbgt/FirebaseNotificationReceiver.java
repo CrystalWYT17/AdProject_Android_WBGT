@@ -86,25 +86,7 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
             //create notification
             createNotification(title, body);
             }
-
     }
-
-//    @Override
-//    public void onCreate() {
-//
-//        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
-//            @Override
-//            public void onComplete(@NonNull Task<String> task) {
-//                if(!task.isSuccessful()){
-//                    Log.e("GetToken","Error: "+task.getException());
-//                    return;
-//                }
-//                String token = task.getResult();
-//                Log.i("Token",token);
-//            }
-//        });
-//
-//    }
 
     public void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -200,33 +182,12 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
     }
 
     public String getNearestStation(){
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
-        String stationId = pref.getString("currentStationId", "S121");
+        LocationService locationService = new LocationService();
+        String stationId = locationService.getCurrentLocation(getApplicationContext());
+        Log.i("stationId in noti",stationId);
+//        SharedPreferences pref = getApplicationContext().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
+//        String stationId = pref.getString("currentStationId", "S121");
         return stationId;
     }
 
-//    public void showNotification(String title, String body){
-//        Intent intent = new Intent(this, MainActivity.class);
-//        String channel_id = "wbgt_notification";
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-//        NotificationCompat.Builder builder
-//                = new NotificationCompat
-//                .Builder(getApplicationContext(),
-//                channel_id)
-//                .setSmallIcon(R.mipmap.ic_launcher_round)
-//                .setAutoCancel(true)
-//                .setVibrate(new long[] { 1000, 1000, 1000,
-//                        1000, 1000 })
-//                .setOnlyAlertOnce(true)
-//                .setContentIntent(pendingIntent);
-//
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-//            NotificationChannel notificationChannel = new NotificationChannel(channel_id, "wbgt",
-//                    NotificationManager.IMPORTANCE_HIGH);
-//            notificationManager.createNotificationChannel(notificationChannel);
-//            notificationManager.notify(1, builder.build());
-//        }
-//    }
 }

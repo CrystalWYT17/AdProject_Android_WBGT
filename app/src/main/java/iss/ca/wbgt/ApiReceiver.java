@@ -3,17 +3,18 @@ package iss.ca.wbgt;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class ApiReceiver extends BroadcastReceiver {
 
-    public ApiReceiver(){
+    private LocationService locationService = new LocationService();
 
+    public ApiReceiver(){
+        // empty constructor
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO: This method is called when the BroadcastReceiver is receiving
-        // an Intent broadcast.
-        throw new UnsupportedOperationException("Not yet implemented");
+        // default method
     }
 }

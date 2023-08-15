@@ -93,10 +93,8 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_notification, container, false);
-        //getNotificationList();
         mTargetFile = new File(requireContext().getFilesDir(), folder+"/"+fileName);
         readFromFile();
-        //Collections.reverse(notificationList);
         if(notificationsTest != null){
             notificationList = notificationsTest;
             Collections.reverse(notificationList);
@@ -108,17 +106,6 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
             listView.setAdapter(adapter);
             listView.setOnItemClickListener(this);
         }
-
-
-        //store and retrieve notification data
-        //store notifications to file
-        //writeToFile();
-
-//        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.notification_list);
-//        NotificationListAdapter adapter = new NotificationListAdapter(notifications);
-//        recyclerView.setAdapter(adapter);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
 
         return rootView;
     }

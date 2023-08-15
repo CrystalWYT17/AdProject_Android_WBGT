@@ -21,15 +21,12 @@ public class UserCurrentData {
         return stationName;
     }
     public String getStationId(){return stationId;}
-
     public String getWbgtValue() {
         return wbgtValue;
     }
-
     public void setStationName(String stationName) {
         this.stationName = stationName;
     }
-
     public void setWbgtValue(String wbgtValue) {
         this.wbgtValue = wbgtValue;
     }

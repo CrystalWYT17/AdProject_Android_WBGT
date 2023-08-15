@@ -54,7 +54,6 @@ public class MainFragment extends Fragment {
     //for line chart
     private LineChart lineChart;
     private ArrayList<Entry> lineEntries = new ArrayList<>();
-    private MyLineChart myLineChart;
     private ProgressBar progressBar;
     private TextView serverTextView;
 
@@ -64,18 +63,12 @@ public class MainFragment extends Fragment {
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerAdapter recyclerAdapter;
     private LinearLayoutManager horizontalLayout;
-    private View childView;
-    private int recyclerViewItemPosition;
-    ;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private String stationName;
-    private String wbgtValue;
-    private String stationId;
 
     private StationDataViewModel viewModel;
 
@@ -132,7 +125,6 @@ public class MainFragment extends Fragment {
 
         // get view model
         viewModel = new ViewModelProvider(this).get(StationDataViewModel.class);
-        Log.i("view", viewModel.toString());
 
         viewModel.getStateData().observe(getViewLifecycleOwner(),s -> {
             if(s.getStationName() != null && s.getWbgtValue() != null){
@@ -145,28 +137,24 @@ public class MainFragment extends Fragment {
         String currentStationName = shr.getString("currentStationName","");
         String currentWbgt = shr.getString("currentWbgt","");
         String dayForecastString = shr.getString("dayForecast","");
-//        String stationId = shr.getString("currentStationId", "S121");
+
         String stationId = locationService.getCurrentLocation(getContext());
 
-        if(txtStationName.getText() == ""){
+        if( currentWbgt.isEmpty() && currentStationName.isEmpty()){
 
-            if( currentWbgt.isEmpty() && currentStationName.isEmpty()){
-
-                txtStationName.setText("Choa Chu Kang Station");
-                txtWbgtValue.setText("33");
-            }
-            else{
-                txtStationName.setText(currentStationName);
-                txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
-            }
-            if(dayForecastString.isEmpty()){
-                getDayForecastStaticData();
-            }
-            else{
-                convertStringToMap(dayForecastString);
-                getDataForXDaysForecast();
-            }
-
+            txtStationName.setText("Choa Chu Kang Station");
+            txtWbgtValue.setText("33");
+        }
+        else{
+            txtStationName.setText(currentStationName);
+            txtWbgtValue.setText(String.valueOf(Math.round(Float.parseFloat(currentWbgt))));
+        }
+        if(dayForecastString.isEmpty()){
+            getDayForecastStaticData();
+        }
+        else{
+            convertStringToMap(dayForecastString);
+            getDataForXDaysForecast();
         }
 
         //linechart
@@ -174,9 +162,7 @@ public class MainFragment extends Fragment {
         progressBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
         serverTextView = (TextView) rootView.findViewById(R.id.serverErrorTxt);
         lineChart.setVisibility(View.GONE);
-//        if(viewModel.getxHourForecastData() == null){
-//            Log.i("hour forecast","null");
-//        }
+
         ApiService service = new ApiService();
 
         CompletableFuture<Map<Integer, List<Double>>> chartData = CompletableFuture.supplyAsync(() -> {
@@ -232,6 +218,8 @@ public class MainFragment extends Fragment {
                         newLineChart.drawLineChart();
                     });
                 });
+
+                locationService.getNearestStation(getContext());
             }
         });
 
@@ -303,17 +291,6 @@ public class MainFragment extends Fragment {
 
             }
         }
-
-//        for(Map.Entry<String, List<String>> dayF: dayForecast.entrySet()){
-//            Log.i("data","dayF: "+dayF.getKey()+"value: "+dayF.getValue());
-//        }
-//        forecastDayList.add(new ForecastDay("Today", "35", "25"));
-//        forecastDayList.add(new ForecastDay("Mon", "35", "25"));
-//        forecastDayList.add(new ForecastDay("Tue", "35", "25"));
-//        forecastDayList.add(new ForecastDay("Wed", "35", "25"));
-//        forecastDayList.add(new ForecastDay("Thu", "35", "25"));
-//        forecastDayList.add(new ForecastDay("Fri", "35", "25"));
-//        forecastDayList.add(new ForecastDay("Sat", "35", "25"));
     }
 
     public void convertStringToMap(String dayForecastString){

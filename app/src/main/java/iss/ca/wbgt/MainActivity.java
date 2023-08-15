@@ -21,6 +21,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -38,6 +39,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -63,9 +65,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -111,20 +116,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
     private String[] notificationPermission = {Manifest.permission.POST_NOTIFICATIONS};
-
-//    private LocationManager locationManager;
-//    private Location location;
-//    private boolean isGPSEnabled;
-//    private boolean isNetworkEnabled;
-    private LocationService locationService = new LocationService();
-
-    private List<Station> stationData = new ArrayList<>();
-    private UserCurrentData userCurrentData;
     private Map<String,List<String>> dayForecast = new HashMap<>();
-    private Map<Integer, List<Double>> xHoursForecast = new HashMap<>();
-    private ApiService apiService = new ApiService();
+    private LocationService locationService = new LocationService();
     private UserCurrentData currentData = new UserCurrentData();
-    private String nearestStation;
 
     private StationDataViewModel viewModel;
 
@@ -135,21 +129,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if(action.equals("CurrentWbgtCompleted")){
                 currentData.setStationName(intent.getStringExtra("currentStationName"));
                 currentData.setWbgtValue(intent.getStringExtra("currentWbgt"));
+                currentData.setStationId(intent.getStringExtra("currentStationId"));
                 viewModel.setUserCurrentData(currentData);
 
                 writeToSharedPreference("currentData");
             }
-            else {
+            if(action.equals("DayForecastCompleted")) {
 
                 dayForecast = (Map<String, List<String>>) intent.getSerializableExtra("dayForecast");
                 writeToSharedPreference("dayForecast");
 
             }
-
+//            if(action.equals("AlarmWakeUp")) {
+//                Log.i("Alarm Manager","wakeup");
+//                locationService.getNearestStation(context);
+//            }
+//            if(action.equals("") || action.equals("")){
             Fragment mainFragment = new MainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, mainFragment);
             transaction.commit();
+//            }
 
         }
     };
@@ -159,10 +159,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        register();
-        stationData = locationService.storeStationData();
-
 
         // create view model object
         viewModel = new ViewModelProvider(this).get(StationDataViewModel.class);
@@ -232,6 +228,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQCODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                getUserCurrentLocation();
+            }
+        }
+    }
+
+    private void checkPermission() {
+        if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED) {
+            getUserCurrentLocation();
+
+        } else {
+            ActivityCompat.requestPermissions(this, locationPermission, LOCATION_PERMISSION_REQCODE);
+        }
+    }
+
+    public void getUserCurrentLocation(){
+        locationService.getNearestStation(this);
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -341,49 +359,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ).replace(R.id.fragment_container, fragment).commit();
     }
 
-    private void checkPermission() {
-        if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED) {
-            getUserCurrentLocation();
-
-        } else {
-            ActivityCompat.requestPermissions(this, locationPermission, LOCATION_PERMISSION_REQCODE);
-        }
-    }
-
-    public void getUserCurrentLocation(){
-        nearestStation = locationService.getCurrentLocation(getApplicationContext());
-        checkCurrentData(nearestStation);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQCODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                getUserCurrentLocation();
-            }
-        }
-    }
-
-    public void checkCurrentData(String nearestStation){
-
-        SharedPreferences shr = getSharedPreferences("wbgt_main_fragment", MODE_PRIVATE);
-        String currentStationId = shr.getString("currentStationId","");
-        if(!currentStationId.equals(nearestStation)){
-            Intent intent = new Intent(MainActivity.this,ApiService.class);
-            intent.putExtra("stationId",nearestStation);
-            intent.putExtra("stationData",(Serializable) stationData);
-            startService(intent);
-        }
-    }
-
     public void writeToSharedPreference(String state){
+
         SharedPreferences shr = getSharedPreferences("wbgt_main_fragment",MODE_PRIVATE);
         SharedPreferences.Editor editor = shr.edit();
         if(state.equals("currentData")){
-            editor.putString("currentStationName",currentData.getStationName());
-            editor.putString("currentStationId",nearestStation);
-            editor.putString("currentWbgt",currentData.getWbgtValue());
+            if(!currentData.getWbgtValue().isEmpty()){
+                editor.putString("currentStationName",currentData.getStationName());
+                editor.putString("currentStationId",currentData.getStationId());
+                editor.putString("currentWbgt",currentData.getWbgtValue());
+            }
         }
         else{
             String dayForecastString = convertMapToString(dayForecast);
@@ -405,6 +390,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         IntentFilter filter = new IntentFilter();
         filter.addAction("CurrentWbgtCompleted");
         filter.addAction("DayForecastCompleted");
+//        filter.addAction("AlarmWakeUp");
         registerReceiver(apiReceiver,filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }

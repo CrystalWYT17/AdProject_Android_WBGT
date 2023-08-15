@@ -5,10 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
 
 public class NotificationListAdapter extends RecyclerView.Adapter<NotificationListAdapter.ItemView> {
@@ -37,7 +35,6 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
     public int getItemCount() {
         return notificationList.size();
     }
-
 
     public class ItemView extends RecyclerView.ViewHolder{
         private TextView title;

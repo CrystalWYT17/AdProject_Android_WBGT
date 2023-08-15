@@ -19,7 +19,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemVi
         this.forecastDayList = forecastList;
     }
 
-
     @NonNull
     @Override
     public ItemView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

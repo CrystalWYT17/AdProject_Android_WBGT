@@ -21,6 +21,9 @@
             android:id="@+id/nav_settings"
             android:title="Notification Settings"/>
 
+        <item
+            android:id="@+id/permission_settings"
+            android:title="Location Setting"/>
 
         <item
             android:id="@+id/nav_faq"

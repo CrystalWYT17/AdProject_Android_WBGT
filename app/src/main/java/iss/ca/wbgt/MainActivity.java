@@ -37,57 +37,28 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
-
-import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
-    private Location lastKnownLocation;
-    private Task<Location> locationResult;
-    private FusedLocationProviderClient fusedLocationClient;
-
 
     private String packageName = "iss.ca.wbgt";
 
@@ -107,14 +78,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayList<NotificationModel> notifications = new ArrayList<NotificationModel>();
     private ArrayList<NotificationModel> notificationsTest = new ArrayList<NotificationModel>();
 
-    private int LOCATION_PERMISSION_REQCODE = 1111;
-
     private final String apiKey = BuildConfig.MAPS_API_KEY;
     private PlacesClient placesClient;
 
     private List<Place.Field> placeFields = Collections.singletonList(Place.Field.NAME);
 
     private String[] locationPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+    private String[] backgroundPermission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION};
+    private int BACKGROUND_LOCATION_REQCODE = 3333;
     private String[] notificationPermission = {Manifest.permission.POST_NOTIFICATIONS};
     private Map<String,List<String>> dayForecast = new HashMap<>();
     private LocationService locationService = new LocationService();
@@ -140,16 +111,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 writeToSharedPreference("dayForecast");
 
             }
-//            if(action.equals("AlarmWakeUp")) {
-//                Log.i("Alarm Manager","wakeup");
-//                locationService.getNearestStation(context);
-//            }
-//            if(action.equals("") || action.equals("")){
+
             Fragment mainFragment = new MainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, mainFragment);
             transaction.commit();
-//            }
 
         }
     };
@@ -223,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStart() {
         register();
-        checkPermission();
+        checkLocationPermission();
         checkNotificationPermission();
         super.onStart();
     }
@@ -231,19 +197,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQCODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+        if(requestCode == BACKGROUND_LOCATION_REQCODE){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                getUserCurrentLocation();
+            }
+        }
+        else{
+            if(grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED){
                 getUserCurrentLocation();
             }
         }
     }
 
-    private void checkPermission() {
-        if (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED) {
-            getUserCurrentLocation();
-
-        } else {
-            ActivityCompat.requestPermissions(this, locationPermission, LOCATION_PERMISSION_REQCODE);
+    public void checkLocationPermission(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            if (checkSelfPermission(backgroundPermission[0]) == PackageManager.PERMISSION_GRANTED || (checkSelfPermission(locationPermission[0]) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(locationPermission[1]) == PackageManager.PERMISSION_GRANTED)) {
+                getUserCurrentLocation();
+            } else {
+                ActivityCompat.requestPermissions(this, backgroundPermission, BACKGROUND_LOCATION_REQCODE);
+            }
         }
     }
 
@@ -277,12 +249,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (item.getItemId() == R.id.nav_settings) {
             Intent intent = new Intent();
             intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-
             intent.putExtra("android.provider.extra.APP_PACKAGE", packageName);
-
             startActivity(intent);
-
-
+        }
+        else if(item.getItemId() == R.id.permission_settings){
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
         }
 
 
@@ -396,6 +370,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onDestroy() {
+
+        unregisterReceiver(apiReceiver);
         super.onDestroy();
     }
 

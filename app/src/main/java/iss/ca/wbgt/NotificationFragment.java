@@ -119,7 +119,7 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(getContext(), "some"+position, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), "some"+position, Toast.LENGTH_SHORT).show();
     }
 
 
@@ -137,7 +137,7 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
             }
             dis.close();
             //mInputTxt.setText(data);
-            Toast.makeText(getContext(), "Read File OK!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getContext(), "Read File OK!", Toast.LENGTH_SHORT).show();
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -155,7 +155,7 @@ public class NotificationFragment extends Fragment implements AdapterView.OnItem
                 fos.write((notification+"\n").getBytes());
             }
             fos.close();
-            Toast.makeText(getContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getContext(), "Write File OK!", Toast.LENGTH_SHORT).show();
         }catch (IOException e){
             e.printStackTrace();
         }

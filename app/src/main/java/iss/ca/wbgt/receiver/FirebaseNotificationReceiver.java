@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -53,11 +54,8 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage){
         super.onMessageReceived(remoteMessage);
         String stationId = getNearestStation();
-        System.out.println("Message Received");
         remoteMessage.getData();
-        Log.d("STATION", remoteMessage.getData().toString());
         String stationIdFromNotification = remoteMessage.getData().get("station_id");
-        Log.d("StationIdFromNotification", stationIdFromNotification);
         if(stationIdFromNotification != null && stationIdFromNotification.equals(stationId)){
             String title = remoteMessage.getData().get("title");
             String body = remoteMessage.getData().get("body");
@@ -180,9 +178,10 @@ public class FirebaseNotificationReceiver extends FirebaseMessagingService {
     public String getNearestStation(){
         LocationService locationService = new LocationService();
         String stationId = locationService.getCurrentLocation(getApplicationContext());
-        Log.i("stationId in noti",stationId);
-//        SharedPreferences pref = getApplicationContext().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
-//        String stationId = pref.getString("currentStationId", "S121");
+        if(stationId == null || stationId.isEmpty()){
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("wbgt_main_fragment", Context.MODE_PRIVATE);
+            stationId = pref.getString("currentStationId", "S121");
+        }
         return stationId;
     }
 

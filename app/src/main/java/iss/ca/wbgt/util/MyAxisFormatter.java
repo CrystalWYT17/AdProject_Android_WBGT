@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.util;
 
 import com.github.mikephil.charting.formatter.ValueFormatter;
 

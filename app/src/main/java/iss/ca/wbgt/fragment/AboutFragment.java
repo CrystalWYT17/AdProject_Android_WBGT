@@ -1,8 +1,9 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.fragment;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import iss.ca.wbgt.R;
 
 import android.view.LayoutInflater;
 import android.view.View;

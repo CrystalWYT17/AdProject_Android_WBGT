@@ -1,15 +1,11 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.fragment;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import iss.ca.wbgt.adapter.ListViewAdapter;
+import iss.ca.wbgt.model.NotificationModel;
+import iss.ca.wbgt.R;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -28,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.

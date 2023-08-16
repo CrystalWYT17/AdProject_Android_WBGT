@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.util;
 
 import android.graphics.Color;
 
@@ -10,6 +10,8 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
 import java.util.ArrayList;
+
+import iss.ca.wbgt.util.MyAxisFormatter;
 
 public class MyLineChart {
     private LineChart lineChart;

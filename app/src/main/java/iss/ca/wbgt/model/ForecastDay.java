@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.model;
 
 public class ForecastDay {
     private String day;

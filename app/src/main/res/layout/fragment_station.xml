@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".StationFragment">
+    tools:context=".fragment.StationFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/station_fragment"
@@ -74,9 +74,6 @@
                 android:id="@+id/mapView"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="15dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

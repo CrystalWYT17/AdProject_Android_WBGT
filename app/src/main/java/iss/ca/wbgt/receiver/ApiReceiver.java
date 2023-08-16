@@ -1,9 +1,10 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
+import iss.ca.wbgt.service.LocationService;
 
 public class ApiReceiver extends BroadcastReceiver {
 

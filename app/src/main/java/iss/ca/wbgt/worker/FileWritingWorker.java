@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.worker;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import iss.ca.wbgt.model.NotificationModel;
 
 import com.google.gson.Gson;
 

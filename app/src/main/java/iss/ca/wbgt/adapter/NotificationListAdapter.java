@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import iss.ca.wbgt.R;
+import iss.ca.wbgt.model.NotificationModel;
+
 import java.util.List;
 
 public class NotificationListAdapter extends RecyclerView.Adapter<NotificationListAdapter.ItemView> {

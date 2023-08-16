@@ -1,14 +1,15 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.fragment;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStore;
-import androidx.lifecycle.ViewModelStoreOwner;
+import iss.ca.wbgt.service.ApiService;
+import iss.ca.wbgt.BuildConfig;
+import iss.ca.wbgt.util.MyLineChart;
+import iss.ca.wbgt.R;
+import iss.ca.wbgt.model.Station;
+import iss.ca.wbgt.viewModel.StationDataViewModel;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,10 +30,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -115,6 +114,7 @@ public class StationFragment extends Fragment implements AdapterView.OnItemSelec
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
+        // insert MAPS_API_KEY in local_properties file and build project again to generate BuildConfig file
         Places.initialize(requireContext(), BuildConfig.MAPS_API_KEY);
         //MapsInitializer.initialize(requireContext());
 

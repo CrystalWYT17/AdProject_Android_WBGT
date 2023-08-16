@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import iss.ca.wbgt.R;
+import iss.ca.wbgt.model.NotificationModel;
 
 import java.util.ArrayList;
 

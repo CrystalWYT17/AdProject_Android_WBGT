@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.service;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import androidx.core.app.ActivityCompat;
+import iss.ca.wbgt.model.Station;
 
 public class LocationService {
 
@@ -135,7 +136,7 @@ public class LocationService {
 //            intent.putExtra("stationData",(Serializable) stationData);
 //            context.startService(intent);
 //        }
-        Intent intent = new Intent(context,ApiService.class);
+        Intent intent = new Intent(context, ApiService.class);
         intent.putExtra("stationId",nearestStation);
         intent.putExtra("stationData",(Serializable) stationData);
         context.startService(intent);

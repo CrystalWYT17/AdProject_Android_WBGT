@@ -1,6 +1,4 @@
-package iss.ca.wbgt;
-
-import com.android.volley.RequestQueue;
+package iss.ca.wbgt.api;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

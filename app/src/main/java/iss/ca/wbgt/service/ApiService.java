@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.service;
 
 import android.app.Service;
 import android.content.Intent;
@@ -24,6 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import iss.ca.wbgt.api.ApiClient;
+import iss.ca.wbgt.api.ApiInterface;
+import iss.ca.wbgt.model.Station;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

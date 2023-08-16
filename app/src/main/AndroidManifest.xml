@@ -29,7 +29,7 @@
         </activity>
 
         <service
-            android:name=".FirebaseNotificationReceiver"
+            android:name=".receiver.FirebaseNotificationReceiver"
             android:enabled="true"
             android:exported="true"
             android:stopWithTask="false">
@@ -38,7 +38,7 @@
             </intent-filter>
         </service>
         <service
-            android:name="iss.ca.wbgt.ApiService"
+            android:name="iss.ca.wbgt.service.ApiService"
             android:enabled="true"
             android:exported="true" />
 

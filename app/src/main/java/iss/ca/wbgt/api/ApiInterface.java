@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.api;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

@@ -1,20 +1,22 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.fragment;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import iss.ca.wbgt.service.ApiService;
+import iss.ca.wbgt.model.ForecastDay;
+import iss.ca.wbgt.service.LocationService;
+import iss.ca.wbgt.util.MyLineChart;
+import iss.ca.wbgt.R;
+import iss.ca.wbgt.adapter.RecyclerAdapter;
+import iss.ca.wbgt.viewModel.StationDataViewModel;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

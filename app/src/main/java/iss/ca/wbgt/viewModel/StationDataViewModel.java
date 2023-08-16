@@ -1,9 +1,10 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.viewModel;
 
 import java.util.ArrayList;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import iss.ca.wbgt.model.UserCurrentData;
 
 import com.github.mikephil.charting.data.Entry;
 

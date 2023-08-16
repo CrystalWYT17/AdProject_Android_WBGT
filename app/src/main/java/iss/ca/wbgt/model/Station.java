@@ -1,4 +1,4 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.model;
 
 import java.io.Serializable;
 

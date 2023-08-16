@@ -1,6 +1,8 @@
-package iss.ca.wbgt;
+package iss.ca.wbgt.model;
 
 import java.io.Serializable;
+
+import iss.ca.wbgt.R;
 
 public class NotificationModel implements Serializable {
     private String title;

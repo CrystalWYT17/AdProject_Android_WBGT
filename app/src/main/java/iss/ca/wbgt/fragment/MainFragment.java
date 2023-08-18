@@ -274,13 +274,22 @@ public class MainFragment extends Fragment {
             String day = dayNames.get(index);
             if(dayForecast.containsKey(day.toUpperCase())){
                 String dayName;
+                String tmp = null;
+                List<String> minMaxWbgt;
                 if(day.equalsIgnoreCase(String.valueOf(currentDay))){
                     dayName = "Today";
                 }
                 else{
                     dayName = dayNames.get(index).substring(0,3);
+                    tmp = dayNames.get(index).toUpperCase();
                 }
-                List<String> minMaxWbgt = dayForecast.get(String.valueOf(currentDay));
+                if(tmp == null){
+                    minMaxWbgt = dayForecast.get(String.valueOf(currentDay));
+                }
+                else {
+                    minMaxWbgt = dayForecast.get(tmp);
+                }
+
                 Double minVal = Double.parseDouble(minMaxWbgt.get(0));
                 Double maxVal = Double.parseDouble(minMaxWbgt.get(1));
                 ForecastDay forecastDay = new ForecastDay(dayName, String.valueOf(Math.round(maxVal)), String.valueOf(Math.round(minVal)));
